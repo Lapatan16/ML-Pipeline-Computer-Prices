@@ -1,0 +1,39 @@
+# History files
+.Rhistory
+.Rapp.history
+
+# Session data
+.RData
+.Ruserdata
+
+# RStudio project files
+.Rproj.user/
+*.Rproj
+
+# Output folders
+/output/
+data/*.csv
+data/*.tsv
+
+# Packages and compiled code
+.Rproj.user/*
+.Rproj.user
+.Rprof*
+*.o
+*.so
+*.dll
+
+# Temporary files
+*.tmp
+*.log
+
+# Knitr / rmarkdown artifacts
+*_cache/
+cache/
+*.utf8.md
+*.knit.md
+*.html
+*.pdf
+
+# Renviron (private configuration)
+.Renviron
