@@ -297,15 +297,6 @@ ggplot(data, aes(x = brand, y = price)) +
   )
 
 ##############################
-outlier_row <- data %>%
-  filter(model == "Samsung Cube 2JV")
-outlier_row
-
-broj_gresaka <- data %>%
-  filter(os == "macOS" & brand != "Apple") %>%
-  nrow()
-
-print(paste("Број уређаја са macOS-ом који нису Apple:", broj_gresaka))
 ##############################
 
 # FAZA: ČIŠĆENJE PODATAKA
@@ -325,7 +316,7 @@ nrow(macos_nije_apple)
 
 data_clean = data_clean %>% filter(!(os == "macOS" & brand != "Apple"))
 nrow(data_clean)
-# ocistili smo
+# ocistili smo ih
 
 
 apple_intel <- data_clean %>% filter(brand == "Apple" & cpu_brand == "Intel")
@@ -340,21 +331,21 @@ nrow(apple_nije_macos)
 # ima ovakvih redova 9740 brisemo ih jer ne mogu da postoje
 data_clean = data_clean %>% filter(!(brand == "Apple" & os != "macOS"))
 nrow(data_clean)
+# za ive 2 prethodne stvari koristili smo domensko znanje
 
-# proveravamo neke nelogicne vrednosti
+# proveravamo neke nelogicne vrednosti, sa grafika vidimo da ne postije negativne vrednosti cene, neke memorije vram, ram i slicno, pa to ne proveravamo, ali proveravamo ove ispod
 desktop_with_battery = data_clean %>% filter(device_type == "Desktop" & battery_wh > 0)
 nrow(desktop_with_battery)
+# da li postoji racunar sa baterijom, nema ih
 laptop_no_battery <- data_clean %>% filter(device_type == "Laptop" & battery_wh == 0)
 nrow(laptop_no_battery)
-neg_values <- data_clean %>%
-  filter(ram_gb <= 0 | vram_gb < 0 | storage_gb <= 0 | price <= 0)
-nrow(neg_values)
+# ili mozda laptop bez baterije, takodje ih nema
 
 n_before <- nrow(data_clean)
 data_clean <- data_clean %>%
-  filter(!(release_year %in% c(2021, 2022) & price > 9000))
+  filter(!(release_year == 2021 & price > 9000))
 cat("Obrisano outliera (2021/2022 preko 9000$):", n_before - nrow(data_clean), "\n")
-# u 2021 i 2022 postoji nekoliko uredjaja sa cenama od preko 9000 a to jos nisu godine kod kojih su bile prisutne toliko jake i skupe komponente pa cemo ih skloniti
+# u 2021 postoji uredjaj sa cenom od preko 9000$ a te godine jos nisu postojale toliko skupe komponente, pa bi trebalo da sklonimo ovaj uredjaj, posto je ovde rezultat 0 znaci da je ovaj uredjaj vec sklonen ranije zbog macos ili apple koji ima neki drugi os, sto dodatno potrvdjuje da ovaj uredjaj nije bio realan da postoji
 
 data_clean <- data_clean %>%
   filter(!(device_type == "Desktop" & price > 8000)) %>%
@@ -365,6 +356,7 @@ cat("Obrisano outliera po tipu uređaja:", n_before - nrow(data_clean), "\n")
 
 n_before <- nrow(data_clean)
 
+###########
 data_clean <- data_clean %>%
   # uređaji sa vrlo malo RAM-a, a previsokom cenom
   filter(!(ram_gb < 16 & price > 6000)) %>%
@@ -373,13 +365,27 @@ data_clean <- data_clean %>%
 
 cat("Obrisano RAM outliera:", n_before - nrow(data_clean), "\n")
 # uredjaji sa manje od 16gb rama i cenom preko 6000$ nisu realni kao i uredjaji od preko 100gb rama i cenom manjom od 2k dolara to uopste ne spada u cenovni rang koji treba kao ni ovo prvo i takve vrednosti uklanjamo
+########### ipak bih rekao da ovde nema nekih preteranih vrednosti odredjenih outliera ima za skoro svaku vrednost ram-a, ali su u nekim granicama normale
+n_before <- nrow(data_clean)
+
+data_clean <- data_clean %>%
+  filter(!(gpu_tier == 1 & price > 6000))
+cat("Obrisano GPU tier outliera:", n_before - nrow(data_clean), "\n")
+# postoje uredjaji koji kostaju preko 6000$, a najnizeg su nivoa graficke kartice, što nije moguće, kakve god da su im druge komponente i outlier je ističe se od drugih tačaka, pa ćemo to obrisati
+
+n_before <- nrow(data_clean)
+data_clean <- data_clean %>%
+  filter(!(resolution %in% c("3840x2160", "3440x1440") & price < 500))
+cat("Obrisano GPU tier outliera:", n_before - nrow(data_clean), "\n")
+# uređaji sa maksimalno rezolucijom i cenom ispod 500$ nisu mogući čak i sa najjefitnijim komponentama, pa ćemo ih obrisati
 
 n_before <- nrow(data_clean)
 
 data_clean <- data_clean %>%
-  # uređaji sa manje od 10 jezgara, a previsokom cenom
-  filter(!(cpu_cores < 10 & price > 8000)) %>%
-  # uređaji sa mnogo jezgara, a preniskom cenom
-  filter(!(cpu_cores > 20 & price < 1500))
+  filter(!(os == "macOS" & price < 700))
+# postoje uređaji sa macOS ispod 700 što je nerealno jeftino čak i za polovne modele, a ovde pričamo o novima, a rezultat ovog kod će biti 0 takvih podataka, jer je to bio uređaj neke druge marke sa macOS što nam drugi put potvrđuje da ovaj uređaj nije realan da postoji
+  
+data_clean = data_clean %>%
+  filter(!(os == "ChromeOS" & price > 9000))
+# brisemo i uređaje koji sadrže chromeOS i koštaju mnogo što je nemoguće čak i sa vrhunskim komponentama, rezultat je opet 0, jer je ovaj uređaj prethodno obrisan zbog drugih analiza
 
-cat("Obrisano CPU cores outliera:", n_before - nrow(data_clean), "\n")
