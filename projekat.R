@@ -389,3 +389,31 @@ data_clean = data_clean %>%
   filter(!(os == "ChromeOS" & price > 9000))
 # brisemo i uređaje koji sadrže chromeOS i koštaju mnogo što je nemoguće čak i sa vrhunskim komponentama, rezultat je opet 0, jer je ovaj uređaj prethodno obrisan zbog drugih analiza
 
+### Multivarijantni modeli
+
+ggplot(data = data) + geom_point(mapping = aes(x = weight_kg, y = price, color = release_year))
+
+ggplot(data = data) + geom_point(mapping = aes(x = cpu_tier, y = ram_gb, color = os))
+# na osnovu toga koji je operativni sistem mozemo pretpostaviti koliko rama ima i cpu_tier
+# vidimo da Windows podrazumeva u vecini slucajeva jaci racunar, dok linux i macOS nisu toliko zahtevni
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
