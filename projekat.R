@@ -296,6 +296,68 @@ ggplot(data, aes(x = brand, y = price)) +
     panel.grid.minor = element_blank()
   )
 
+####
+# kombinacije podataka radi boljeg prepoznavanja trendova
+###
+
+# Uticaj tipa eksterne memorije na količinu memorije i cenu uređaja
+
+ggplot(data, aes(x = storage_gb, y = price, color = storage_type)) +
+  geom_point(alpha = 1/3) +
+  facet_wrap(~ storage_type) +
+  theme_minimal() + labs(
+    title = "Uticaj tipa eksterne memorije na količinu memorije i cenu uređaja",
+    x = "Količina memorije",
+    y = "Cena u dolarima"
+  )
+
+# Uticaj marke procesora na cenu po rangu
+
+ggplot(data, aes(x = cpu_tier, y = price, color = cpu_brand)) +
+  geom_point(alpha = 1/3) +
+  facet_wrap(~ cpu_brand) +
+  theme_minimal() + labs(
+    title = "Uticaj marke procesora na cenu po rangu",
+    x = "Rang procesora (tier)",
+    y = "Cena u dolarima"
+  )
+
+# apple drzi konstantu cenu, dok ostali malo odskacu i imaju vise ekstremnih ocena
+# sve marke prate trend da je visi rang znaci i visu cenu
+
+# koji brand daje najvise garancija i kako to utice na cenu
+
+ggplot(data, aes(x = warranty_months, y = price, color = brand)) +
+  geom_point(alpha = 1/3) +
+  facet_wrap(~ brand) +
+  theme_minimal() + labs(
+    title = "Uticaj marke računara i garancije u mesecima na cenu",
+    x = "Garancija u mesecima",
+    y = "Cena u dolarima"
+  )
+
+# Uticaj marke i ranga grafičke kartice na cenu
+
+ggplot(data, aes(x = gpu_tier, y = price, color = gpu_brand)) +
+  geom_point(alpha = 1/3) +
+  facet_wrap(~ gpu_brand) +
+  theme_minimal() + labs(
+    title = "Uticaj marke i ranga grafičke kartice na cenu",
+    x = "Rang grafičke kartice (tier)",
+    y = "Cena u dolarima"
+  )
+
+# 
+
+ggplot(data, aes(x = refresh_hz, y = price, color = gpu_tier)) +
+  geom_point(alpha = 1/3) +
+  facet_wrap(~ refresh_hz) +
+  theme_minimal() + labs(
+    title = "Uticaj marke i ranga grafičke kartice na cenu",
+    x = "Rang grafičke kartice (tier)",
+    y = "Cena u dolarima"
+  )
+
 ##############################
 ##############################
 
