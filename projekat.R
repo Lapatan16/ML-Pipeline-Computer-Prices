@@ -397,7 +397,13 @@ ggplot(data = data) + geom_point(mapping = aes(x = cpu_tier, y = ram_gb, color =
 # na osnovu toga koji je operativni sistem mozemo pretpostaviti koliko rama ima i cpu_tier
 # vidimo da Windows podrazumeva u vecini slucajeva jaci racunar, dok linux i macOS nisu toliko zahtevni
 
+ggplot(data = data) + geom_point(mapping = aes(x = cpu_tier, y = price, color = cpu_brand), position = "jitter")
+# sa grafika mozemo videti da su Apple procesori generalno skuplji od ostalih za isti tier
+# dok su AMD i Intel podjednake cene
 
+ggplot(data = data) + geom_point(mapping = aes(x = storage_gb, y = price, color = device_type), position = "jitter", alpha = 1/5)
+
+cor(data[,c(4, 9, 10, 11, 12, 13, 16, 17, 18, 20, 21, 23, 25, 26, 27, 28, 30, 31, 32, 33)])
 
 
 
