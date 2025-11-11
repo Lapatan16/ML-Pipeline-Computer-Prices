@@ -349,9 +349,9 @@ ggplot(data, aes(x = gpu_tier, y = price, color = gpu_brand)) +
 
 # 
 
-ggplot(data, aes(x = refresh_hz, y = price, color = gpu_tier)) +
+ggplot(data, aes(x = device_type, y = price, color = os)) +
   geom_point(alpha = 1/3) +
-  facet_wrap(~ refresh_hz) +
+  facet_wrap(~ os) +
   theme_minimal() + labs(
     title = "Uticaj marke i ranga grafičke kartice na cenu",
     x = "Rang grafičke kartice (tier)",
