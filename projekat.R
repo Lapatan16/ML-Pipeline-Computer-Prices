@@ -302,6 +302,12 @@ ggplot(data, aes(x = brand, y = price)) +
 
 # Uticaj tipa eksterne memorije na količinu memorije i cenu uređaja
 
+# Na scatter dijagramu imamo odnos količine eksterne memorije u GB i cene u dolarima, 
+# podeljene po tipu eksterne memorije. To nam omogućava da vidimo za svaku vrstu eksterne
+# memorije koja količina se najčešće uzima i koliko košta u odnosu na ostale vrste. 
+# Sa grafika možemo uočiti da nema pravila i da se sve četiri vrste eksterne memorije 
+# kupuju u sličnoj meri. Vidimo takođe da je HDD generalno jeftiniji od ostalih.
+
 ggplot(data, aes(x = storage_gb, y = price, color = storage_type)) +
   geom_point(alpha = 1/3) +
   facet_wrap(~ storage_type) +
@@ -312,6 +318,13 @@ ggplot(data, aes(x = storage_gb, y = price, color = storage_type)) +
   )
 
 # Uticaj marke procesora na cenu po rangu
+
+# Na scatter grafiku je prikazan uticaj marke po rangu procesora na cenu. 
+# Imamo tri marke procesora i šest nivoa procesora. Odmah na startu vidimo da je 
+# Apple najskuplji po svim nivoima. Vidimo da sve marke imaju dosta outliera, gde Intel 
+# ima najviše i to najčešće za tier vrednosti od 2 do 4. To nam govori, ono što smo već 
+# mogli da naslutimo da je Intel najfleksibilniji procesor, koji se kombinuje sa dosta
+# drugih komponenti, koje mogu uticati na cenu uređaja.
 
 ggplot(data, aes(x = cpu_tier, y = price, color = cpu_brand)) +
   geom_point(alpha = 1/3) +
@@ -327,6 +340,17 @@ ggplot(data, aes(x = cpu_tier, y = price, color = cpu_brand)) +
 
 # koji brand daje najvise garancija i kako to utice na cenu
 
+# Na scatter dijagramu je prikazan uticaj marke računara i garancije u mesecima 
+# koje oni pružaju na cenu uređaja. Sa grafika možemo jasno videti da je Apple 
+# najskuplji po svim vrednostima garancije. Takođe, možemo videti da garancija ne 
+# utiče toliko na cenu računara, kao što bismo prvo pretpostavili. 
+# Kod svih brendova garancija od 40+ meseci ima uglavnom nižu cenu od svih ostalih. 
+# Najveća zarada kod svih brendova se postiže sa garancijom od 24 meseca, 
+# najverovatnije jer je to najčešća vrednost garancije i samim tim imamo najviše 
+# primera za tu vrednost. Možemo videti da kod svake marke računara imamo nekoliko 
+# outliera, gde Lenovo ima najekstremniju vrednost za garanciju od 36 meseci ima cenu 
+# od 9.000+ dolara
+
 ggplot(data, aes(x = warranty_months, y = price, color = brand)) +
   geom_point(alpha = 1/3) +
   facet_wrap(~ brand) +
@@ -338,6 +362,14 @@ ggplot(data, aes(x = warranty_months, y = price, color = brand)) +
 
 # Uticaj marke i ranga grafičke kartice na cenu
 
+# Na scatter dijagramu imamo prikazan uticaj marke i ranga grafičke kartice na cenu. 
+# Rang grafičke kartice nam predstavlja dobar prediktor sam po sebi, ali u kombinaciji 
+# sa markom bi mogao da postane još bolji prediktor. Vidimo sa slike, kao i do sad, 
+# da je Apple skuplji po svim rangovima od ostalih. AMD, Intel i NVIDIA imaju skoro 
+# identične cene po svim rangovima. Sa slike se jasno može primetiti da kod svake 
+# marke imamo outliere na skoro sve rangove. NVIDIA ima najviše outliera po svim 
+# rangovima i jednu ekstremnu vrednost za rang šest, gde je cena viša od 10.000 dolara.
+
 ggplot(data, aes(x = gpu_tier, y = price, color = gpu_brand)) +
   geom_point(alpha = 1/3) +
   facet_wrap(~ gpu_brand) +
@@ -347,14 +379,27 @@ ggplot(data, aes(x = gpu_tier, y = price, color = gpu_brand)) +
     y = "Cena u dolarima"
   )
 
-# 
+# Uticaj ranga procesora i ranga grafičke kartice na cenu
 
-ggplot(data, aes(x = device_type, y = price, color = os)) +
+# Na scatter dijagramu je prikazan odnos ranga procesora i ranga grafičke kartice 
+# i njihovog uticaja na cenu. Prvo što primećujemo sa slike je da neke vrednosti 
+# procesora za određene vrednosti grafičke kartice ne postoje. To nije greška, 
+# to nam u stvari govori o tome kako određene komponente komuniciraju jedna sa 
+# drugom i kako se kombinuju. Vidimo da npr. za rang 1 grafičke kartice imamo 
+# podatke samo do četvrtog ranga procesora, isto tako možemo videti da za rang 6 
+# grafičke kartice imamo samo rangove 5 i 6 procesora. Možemo zaključiti da sa 
+# porastom ranga jedne komponente raste i rang druge komponente, a sa obzirom na to 
+# da su rangovi obe komponente dobar prediktor, možemo zaključiti da ćemo samo 
+# porastom jedne od te dve komponente povećati cenu i bez razmatranja druge komponente. 
+# Možemo takođe primetiti da imamo nekoliko outliera, ali ni jedan po X osi, što nam 
+# ponovno potvrđuje njihovu međusobnu vezu i kompatibilnost komponenti.
+
+ggplot(data, aes(x = cpu_tier, y = price, color = gpu_tier)) +
   geom_point(alpha = 1/3) +
-  facet_wrap(~ os) +
+  facet_wrap(~ gpu_tier) +
   theme_minimal() + labs(
-    title = "Uticaj marke i ranga grafičke kartice na cenu",
-    x = "Rang grafičke kartice (tier)",
+    title = "Uticaj ranga procesora i ranga grafičke kartice na cenu",
+    x = "Rang procesora (tier)",
     y = "Cena u dolarima"
   )
 
