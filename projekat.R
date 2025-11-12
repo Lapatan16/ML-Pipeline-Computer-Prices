@@ -414,7 +414,8 @@ datav2
 
 # 1) provera NA vrednosti
 
-colSums(is.na(datav2))
+colSums(is.na(datav2)) # adasdasdasdasdsa
+
 # vidimo da u datasetu ne postoje NA tj. vrednosti koje fale već su svi podaci za svih 100k redova popunjeni
 
 # 2) pogrešno unete vrednosti
@@ -425,7 +426,7 @@ colSums(is.na(datav2))
 # 3) nelogične vrednosti
 
 nrow(filter(datav2, os == "macOS" & price < 1000))
-# sa grafika odnosa cene i os-a (slika broj) su nam bili sumnjivi uređaji sa macOS jeftiniji od 1000$ i sada vidimo da su oni uglavnom od nekog drugog proizvođaca što u stvarnosti nije moguće
+# sa grafika odnosa cene i os-a (slika broj 41) su nam bili sumnjivi uređaji sa macOS jeftiniji od 1000$ i sada vidimo da su oni uglavnom od nekog drugog proizvođaca što u stvarnosti nije moguće
 
 macos_nije_apple = datav2 %>% filter(os == "macOS" & brand != "Apple")
 nrow(macos_nije_apple)
