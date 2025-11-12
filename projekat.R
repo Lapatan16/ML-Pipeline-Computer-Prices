@@ -299,95 +299,103 @@ ggplot(data, aes(x = brand, y = price)) +
 ##############################
 ##############################
 
-# FAZA: ČIŠĆENJE PODATAKA
+# FAZA: ČIŠĆENJE I OBRADA PODATAKA
 
-data_clean = data
-data_clean
-# za svaki slucaj radimo sa rezervom originalnog skupa ako nesto pogresimo imamo original podatke netaknute
+datav2 = data
+datav2
+# za svaki slučaj radimo sa rezervom originalnog skupa, ako nesto pogrešimo imamo original podatke netaknute
 
-filter(data_clean, os == "macOS" & price < 1000)
-# sa grafika odnosa cena i os-a su nam bili sumnjivi uredjaji sa macOS jeftiniji od 1000$ i sada vidimo da su oni uglavnom od drugog nekog proizvodjaca sto je nemoguce
+# 1) provera NA vrednosti
 
-macos_nije_apple = data_clean %>% filter(os == "macOS" & brand != "Apple")
+colSums(is.na(datav2))
+# vidimo da u datasetu ne postoje NA tj. vrednosti koje fale već su svi podaci za svih 100k redova popunjeni
+
+# 2) pogrešno unete vrednosti
+
+# analizom skupa podataka vizuelno i analizom grafika iz prethodnog koraka nisu oučene neke pogrešne vrednosti npr. tip uređaja da negde bude Device negde device
+# ili uređaj od 100kg, negativna vrednost cene, memorije ili nečeg sličnog
+
+# 3) nelogične vrednosti
+
+nrow(filter(datav2, os == "macOS" & price < 1000))
+# sa grafika odnosa cene i os-a (slika broj) su nam bili sumnjivi uređaji sa macOS jeftiniji od 1000$ i sada vidimo da su oni uglavnom od nekog drugog proizvođaca što u stvarnosti nije moguće
+
+macos_nije_apple = datav2 %>% filter(os == "macOS" & brand != "Apple")
 nrow(macos_nije_apple)
-# postoji 16032 reda kojima je proizvodjac uredjanja neka kompanija a da nije apple a imaju mac os sto nije moguce i nije ni zakonski
-# ako se ne gleda samo zvanicno postoje zajednice koje se bave podizanjem mac os na ne apple pc i laptopove ali to nista nije oficijalno i ovde su podaci samo o novim stvarima
-# iako je 16032 dosta dobar deo od 100k podaci su nerealni i netacni pa ce biti sklonjeni
+# postoji 16032 reda kojima je proizvođač uređaja neka kompanija koja nije apple, a imaju mac os što nije moguće i nije ni zakonski, apple ne dozvoljava instaliranje mac os na proizvodima drugih kompanija
+# ako se ne gleda samo zvanično, postoje zajednice koje se bave podizanjem mac os na ne-apple računare i laptopove, ali to ništa nije oficijalno i ovde su podaci samo o novim uređajima
+# iako je 16032 dosta dobar deo od 100k podaci su nerealni i netačni, pa će biti uklonjeni
 
-data_clean = data_clean %>% filter(!(os == "macOS" & brand != "Apple"))
-nrow(data_clean)
-# ocistili smo ih
+datav2 = datav2 %>% filter(!(os == "macOS" & brand != "Apple"))
+nrow(datav2)
+# sada nam ostaje 83968, uklonjeno je oko 16% postojećih podataka
+# znamo i da apple uređaji ne mogu imati neki drugi os osim ako npr imaju intel procesor što je i bio slučaj do pre nekoliko godina, pa ćemo proveriti i takve
 
+apple_intel_procesor <- datav2 %>% filter(brand == "Apple" & cpu_brand == "Intel")
+nrow(apple_intel_procesor)
+# apple uređaja sa intel procesorima nema
 
-apple_intel <- data_clean %>% filter(brand == "Apple" & cpu_brand == "Intel")
-apple_applecpu <- data_clean %>% filter(brand == "Apple" & cpu_brand == "Apple")
-# sada gledamo i obrnuto kao podrazumevani os posto pricamo samo ovde o novim uredjajima apple uredjaji mogu imati windows ili nesto da nije macos samo ako imaju intel procesor a ne apple silicon
-nrow(apple_intel)
-nrow(apple_applecpu)
-# ne postoje apple uredjaji sa intel cpu-om tako da sklanjamo sve sto je od apple-a a ima nesto da nije macos
+apple_apple_procesor <- datav2 %>% filter(brand == "Apple" & cpu_brand == "Apple")
+nrow(apple_apple_procesor)
+# apple uređaja imamo 11915 i pošto ih nema sa intel procesorom, tražimo sve koji nemaju macos
 
-apple_nije_macos = data_clean %>% filter(brand == "Apple" & os != "macOS")
+apple_nije_macos = datav2 %>% filter(brand == "Apple" & os != "macOS")
 nrow(apple_nije_macos)
-# ima ovakvih redova 9740 brisemo ih jer ne mogu da postoje
-data_clean = data_clean %>% filter(!(brand == "Apple" & os != "macOS"))
-nrow(data_clean)
-# za ive 2 prethodne stvari koristili smo domensko znanje
+# ovakvih redova ima 9740, ti podaci nisu realni i brišemo ih, uklonjeno je oko 11,5% postojećih podataka
 
-# proveravamo neke nelogicne vrednosti, sa grafika vidimo da ne postije negativne vrednosti cene, neke memorije vram, ram i slicno, pa to ne proveravamo, ali proveravamo ove ispod
-desktop_with_battery = data_clean %>% filter(device_type == "Desktop" & battery_wh > 0)
+datav2 = datav2 %>% filter(!(brand == "Apple" & os != "macOS"))
+nrow(datav2)
+# za prethodne 2 stvari smo koristili domensko znanje, koje nam je mnogo pomoglo da uočimo nepravilnosti i da ih potom ispitamo
+
+# proveravamo još neke nelogične vrednosti
+desktop_with_battery = datav2 %>% filter(device_type == "Desktop" & battery_wh > 0)
 nrow(desktop_with_battery)
-# da li postoji racunar sa baterijom, nema ih
-laptop_no_battery <- data_clean %>% filter(device_type == "Laptop" & battery_wh == 0)
+# provera da li postoji računar sa baterijom, nema ih
+
+laptop_no_battery <- datav2 %>% filter(device_type == "Laptop" & battery_wh == 0)
 nrow(laptop_no_battery)
-# ili mozda laptop bez baterije, takodje ih nema
+# ili možda laptop bez baterije, takođe ih nema
 
-n_before <- nrow(data_clean)
-data_clean <- data_clean %>%
-  filter(!(release_year == 2021 & price > 9000))
-cat("Obrisano outliera (2021/2022 preko 9000$):", n_before - nrow(data_clean), "\n")
-# u 2021 postoji uredjaj sa cenom od preko 9000$ a te godine jos nisu postojale toliko skupe komponente, pa bi trebalo da sklonimo ovaj uredjaj, posto je ovde rezultat 0 znaci da je ovaj uredjaj vec sklonen ranije zbog macos ili apple koji ima neki drugi os, sto dodatno potrvdjuje da ovaj uredjaj nije bio realan da postoji
+# 4) analiza i potencijalno izbacivanje outlier-a
 
-data_clean <- data_clean %>%
-  filter(!(device_type == "Desktop" & price > 8000)) %>%
-  filter(!(device_type == "Laptop" & price > 9500))
+preskupi_2021 = datav2 %>% filter(release_year == 2021 & price > 9000)
+nrow(preskupi_2021)
+# sa grafika zavisnosti cene od godine izdavanja uređaja (slika broj 9) u 2021 postoji uredjaj sa cenom od preko 9000$, a te godine još nisu postojale toliko skupe komponente, pa bi trebalo da sklonimo ovaj uređaj
+# pošto je ovde rezultat 0 znači da je ovaj uređaj već sklonjen ranije zbog nekih nelogičnih vrednosti, što dodatno potrvđuje da ovaj uređaj nije bio realan da postoji
 
-cat("Obrisano outliera po tipu uređaja:", n_before - nrow(data_clean), "\n")
-# sa grafika tipa uredjaja i cene ostavicemo laptopove koji kostaju do 10k dolara jer su oni integrisani i skupih komponenti pa i mogu mnogo kostati (preko 10k brisemo) ali racunari preko 8k dolara su nerealni i njih cemo skloniti
+preskupi_laptopovi = datav2 %>% filter(device_type == "Desktop" & price > 8000)
+preskupi_racunari = datav2 %>% filter(device_type == "Laptop" & price > 10000)
+# sa grafika zavisnosti cene od tipa uređaja (slika broj 11) ostavićemo laptopove koji koštaju do 10000$, jer oni sadrže integrisane i skupe komponente, pa i mogu mnogo koštati (oni preko 10k su već nerealni sa bilo kakvim komponentama i brišemo ih) 
+# računari su jeftiniji od laptopova tako da do 8000$ je maksimalna granica otprilike koliko mogu da koštaju, pa ćemo sve sa cenom preko 8000$ skloniti
 
-n_before <- nrow(data_clean)
+datav2 = datav2 %>% filter(!((device_type == "Desktop" & price > 8000) | (device_type == "Laptop" & price > 10000)))
+# obrisali smo 4 ovakva podatka
 
-###########
-data_clean <- data_clean %>%
-  # uređaji sa vrlo malo RAM-a, a previsokom cenom
-  filter(!(ram_gb < 16 & price > 6000)) %>%
-  # uređaji sa ogromnim RAM-om, a vrlo niskom cenom
-  filter(!(ram_gb > 100 & price < 2000))
+skupi_slab_gpu = datav2 %>% filter(gpu_tier == 1 & price > 6000)
+# sa grafika zavisnosti cene od ranga grafičke kartice (slika broj 19) postoje uređaji koji koštaju preko 6000$, a najnižeg su nivoa grafičke kartice, što nije moguće, kakve god da su im druge komponente i ovaj podatak se dosta ističe od drugih, pa ćemo ga obrisati
 
-cat("Obrisano RAM outliera:", n_before - nrow(data_clean), "\n")
-# uredjaji sa manje od 16gb rama i cenom preko 6000$ nisu realni kao i uredjaji od preko 100gb rama i cenom manjom od 2k dolara to uopste ne spada u cenovni rang koji treba kao ni ovo prvo i takve vrednosti uklanjamo
-########### ipak bih rekao da ovde nema nekih preteranih vrednosti odredjenih outliera ima za skoro svaku vrednost ram-a, ali su u nekim granicama normale
-n_before <- nrow(data_clean)
+datav2 = datav2 %>% filter(!(gpu_tier == 1 & price > 6000))
+# obrisali smo jedan podatak
 
-data_clean <- data_clean %>%
-  filter(!(gpu_tier == 1 & price > 6000))
-cat("Obrisano GPU tier outliera:", n_before - nrow(data_clean), "\n")
-# postoje uredjaji koji kostaju preko 6000$, a najnizeg su nivoa graficke kartice, što nije moguće, kakve god da su im druge komponente i outlier je ističe se od drugih tačaka, pa ćemo to obrisati
+jefitini_ogromna_rezolucija = datav2 %>% filter(resolution %in% c("3440x1440", "3840x2160") & price < 500)
+# sa grafika zavisnosti cene od rezolucije ekrana (slika broj 29) postoje uređaji sa maksimalnom rezolucijom i cenom ispod 500$, što je nemoguće kakve god da su druge komponente, pa ćemo ih obrisati
 
-n_before <- nrow(data_clean)
-data_clean <- data_clean %>%
-  filter(!(resolution %in% c("3840x2160", "3440x1440") & price < 500))
-cat("Obrisano GPU tier outliera:", n_before - nrow(data_clean), "\n")
-# uređaji sa maksimalno rezolucijom i cenom ispod 500$ nisu mogući čak i sa najjefitnijim komponentama, pa ćemo ih obrisati
+datav2 = datav2 %>% filter(!(resolution %in% c("3440x1440", "3840x2160") & price < 500))
+# obrisana su 2 podatka
 
-n_before <- nrow(data_clean)
-
-data_clean <- data_clean %>%
-  filter(!(os == "macOS" & price < 700))
-# postoje uređaji sa macOS ispod 700 što je nerealno jeftino čak i za polovne modele, a ovde pričamo o novima, a rezultat ovog kod će biti 0 takvih podataka, jer je to bio uređaj neke druge marke sa macOS što nam drugi put potvrđuje da ovaj uređaj nije realan da postoji
+prejeftini_macovi = datav2 %>%
+  filter(os == "macOS" & price < 700)
+nrow(prejeftini_macovi)
+# sa grafika zavisnosti cene od os-a (slika broj 41) postoje uređaji sa macOS ispod 700 što je nerealno jeftino čak i za polovne modele, a ovde pričamo o novima
+# rezultat ovog koda će biti 0 takvih podataka, jer je to bio uređaj koji je prethodno uklonjen zbog nečeg drugog, što nam drugi put potvrđuje da ovaj uređaj nije realan da postoji
   
-data_clean = data_clean %>%
-  filter(!(os == "ChromeOS" & price > 9000))
-# brisemo i uređaje koji sadrže chromeOS i koštaju mnogo što je nemoguće čak i sa vrhunskim komponentama, rezultat je opet 0, jer je ovaj uređaj prethodno obrisan zbog drugih analiza
+preskupi_chromeos = datav2 %>%
+  filter(os == "ChromeOS" & price > 9000)
+nrow(preskupi_chromeos)
+# sa grafika zavisnosti cene od os-a (slika broj 41) vidimo da postoje uređaji koji imaju chromeOS koji imaju slabiji uređaji i uopšteno ga nema kod skupljih, rezultat za uređaj sa ovim os-om kakve god da su druge komponente, pa ćemo obrisati
+# rezultat ovog koda jeste 0, što nam govori da ovaj podatak i treba izbaciti, što smo ovde i drugi put dokazali, jer su uređaji sklonjeni prilikom nekog od prethodnih čišćenja podataka
+
+# nakon svih čišćenja podataka ostalo je 74221 podataka, odnosno uklonjeno je oko 26% podataka
 
 ### Multivarijantni modeli
 
