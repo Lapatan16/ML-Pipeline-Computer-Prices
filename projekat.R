@@ -557,7 +557,7 @@ datav2
 
 # 1) provera NA vrednosti
 
-colSums(is.na(datav2)) # adasdasdasdasdsa
+colSums(is.na(datav2))
 
 # vidimo da u datasetu ne postoje NA tj. vrednosti koje fale već su svi podaci za svih 100k redova popunjeni
 
@@ -658,7 +658,7 @@ ggplot(data = datav2) + geom_point(mapping = aes(x = cpu_tier, y = ram_gb, color
 # na osnovu toga koji je operativni sistem mozemo pretpostaviti koliko rama ima i cpu_tier
 # vidimo da Windows podrazumeva u vecini slucajeva jaci racunar, dok linux i macOS nisu toliko zahtevni
 
-ggplot(data= datav2) + geom_point(mapping = aes(x = cpu_tier, y = price, color = cpu_brand), position = "jitter")
+ggplot(data = datav2) + geom_point(mapping = aes(x = cpu_tier, y = price, color = cpu_brand), position = "jitter")
 # sa grafika mozemo videti da su Apple procesori generalno skuplji od ostalih za isti tier
 # dok su AMD i Intel podjednake cene
 
@@ -673,7 +673,7 @@ names(numericke_kolone)
 # izdvajamo samo kolone koje su numeričke, jer samo između njih možemo videti korelaciju, ima ih 20
 # korelacija je statistička mera koja opisuje jačinu i smer linearne povezanosti između dve ili više numeričkih varijabli, tačnije da li se promenom jedne varijable menja i druga
 # bliže 1 je sve više pozitivna korelacija tj. kako jedna raste i druga raste, kako je bliže -1, kako jedna raste druga opada, negativna korelacija, bliže 0, sve je manja povezanost
-## select_if se koristi za selekciju kolona iz uslova koji ce se staviti unutar zagrada a to je da li je tip podataka u koloni numericki i names ispisuje samo nazive kolona gde jeste
+## select_if se koristi za selekciju kolona iz uslova koji ce se staviti unutar zagrada, a to je da li je tip podataka u koloni numericki i names ispisuje samo nazive kolona gde jeste
 
 matrica_korelacije = cor(numericke_kolone, use = "complete.obs")
 matrica_korelacije
@@ -706,10 +706,44 @@ theme(
 # što je više plavo jača je pozitivna korelacija, što je više crveno to je više negativno korelisano
 # donji i gornji trougao su preslikvanje, pa su isti, ali su nacrtana oba kako bi grafik bio lepši i naravno na dijagonali su sve jedinice, svako obeležje ima korelaciju 1 sa samim sobom što je i logično
 ## sto se tice koda uglv neko bojenje i ostalo je sve pojasnjeno iznad
-# jake pozitivne korelacije sa ciljnom promenljivom su gpu_tier, cpu_tier, ram_gb, cpu_cores, cpu threads, cpu_baze_ghz, cpu_boost_ghz i vram?gb
+# jake pozitivne korelacije sa ciljnom promenljivom su gpu_tier, cpu_tier, ram_gb, cpu_cores, cpu threads, cpu_baze_ghz, cpu_boost_ghz i vram_gb
 # cena najviše zavisi od hardverskih perfomansi CPU, GPU, RAM i slično i to će biti naši glavni prediktori za budući model
 # slabe pozitivne korelacije su sa storage_gb, release_year, refresh_hz, bluetooth, warranty_months i slično. 
-# same po sebi ne utiču mnogo, ali sa nečim u kombinaciji ovo se može povećati
+# same po sebi ne utiču mnogo, ali sa nečim u kombinaciji ovo se možda može povećati
 # negativne korelacije su sa weight_kg, display_size_in, psu_watts i druge. Vrednosti su uglavnom dosta bliže 0, tako da i nema neke velike povezanosti
 # snažne međusobne korelacije jesu između cpu_base_ghz i cpu_boost_ghz, cpu_tier sa bilo čim iz cpu dela, gpu_tier i vram i druge, uzimaćemo po našoj proceni bitniju od svake dve kako ne bismo došli do multikolinearnonsti
-# 
+# multikolinearnost je !!!!!!!!!!!!!!!!!!!!!!!!!!
+
+# sve kategorijske promenljive pretvaramo u factor. Factor je poseban tip promenljive koji služi da predstavi kategorijske promenljive, kažemo R-u da ova obeležja nemaju numeričko značenje već su podaci podeljeni po grupama
+# umesto da kategorijske promenljive budu string-ovi pretvaraju se u factor kako bi grafici mogli da se pravilno iscrtaju, da se podaci lakse skladište i da bi mogle da se definišu i ordered promenljive
+# ordered znači da postoji prirodan redosled i bitno je kojim redom ide koja kategorija
+
+datav2$device_type = as.factor(datav2$device_type)
+# imamo samo dve moguće vrednosti Desktop i Laptop pa ovo obeležje pretvaramo u factor
+datav2$brand = as.factor(datav2$brand)
+# ima nekoliko proizvođača uređaja, kategorijsko je obeležje pa pretvaramo u factor
+datav2$os = as.factor(datav2$os)
+# takođe ima samo nekoliko vrednosti i kategorijsko je obeležje
+datav2$storage_type = as.factor(datav2$storage_type)
+datav2$cpu_brand = as.factor(datav2$cpu_brand)
+datav2$gpu_brand = as.factor(datav2$gpu_brand)
+datav2$display_type = as.factor(datav2$display_type)
+datav2$resolution = as.factor(datav2$resolution)
+datav2$wifi = as.factor(datav2$wifi)
+datav2$form_factor = as.factor(datav2$form_factor)
+# slično kao i za sve prethodno
+datav2$cpu_tier = factor(
+  datav2$cpu_tier,
+  levels = sort(unique(datav2$cpu_tier)),
+  ordered = TRUE
+)
+# pretvaramo u ordered obeležje, kategorijsko je i jako je bitan redosled
+## ordered + TRUE znači da je ovo ordered factor promenljiva i levels = sort(unique(datav2$cpu_tier)) name kaže 
+datav2$gpu_tier <- factor(
+  datav2$gpu_tier,
+  levels = sort(unique(datav2$gpu_tier)),
+  ordered = TRUE
+)
+# isto kao i za cpu_tier
+# obeležja poput model, i  ne pretvaramo, jer nisu previše bitni za model i ima hiljade i hiljade različitih kategorija, nema nekih kategorija
+# numerička obeležja ostaju onakva kakva i jesu
