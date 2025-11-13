@@ -5,6 +5,9 @@
 library(tidyverse)
 library(ggplot2)
 library(scales)
+library(dplyr)
+library(corrplot)
+library(ggcorrplot)
 
 # ucitavanje skupa podataka i prikaz osnovnih stvari
 data = read.csv("computer_prices_all.csv")
@@ -613,6 +616,8 @@ nrow(preskupi_2021)
 
 preskupi_laptopovi = datav2 %>% filter(device_type == "Desktop" & price > 8000)
 preskupi_racunari = datav2 %>% filter(device_type == "Laptop" & price > 10000)
+nrow(preskupi_laptopovi)
+nrow(preskupi_racunari)
 # sa grafika zavisnosti cene od tipa uređaja (slika broj 11) ostavićemo laptopove koji koštaju do 10000$, jer oni sadrže integrisane i skupe komponente, pa i mogu mnogo koštati (oni preko 10k su već nerealni sa bilo kakvim komponentama i brišemo ih) 
 # računari su jeftiniji od laptopova tako da do 8000$ je maksimalna granica otprilike koliko mogu da koštaju, pa ćemo sve sa cenom preko 8000$ skloniti
 
@@ -620,25 +625,25 @@ datav2 = datav2 %>% filter(!((device_type == "Desktop" & price > 8000) | (device
 # obrisali smo 4 ovakva podatka
 
 skupi_slab_gpu = datav2 %>% filter(gpu_tier == 1 & price > 6000)
+nrow(skupi_slab_gpu)
 # sa grafika zavisnosti cene od ranga grafičke kartice (slika broj 19) postoje uređaji koji koštaju preko 6000$, a najnižeg su nivoa grafičke kartice, što nije moguće, kakve god da su im druge komponente i ovaj podatak se dosta ističe od drugih, pa ćemo ga obrisati
 
 datav2 = datav2 %>% filter(!(gpu_tier == 1 & price > 6000))
 # obrisali smo jedan podatak
 
-jefitini_ogromna_rezolucija = datav2 %>% filter(resolution %in% c("3440x1440", "3840x2160") & price < 500)
+jeftini_ogromna_rezolucija = datav2 %>% filter(resolution %in% c("3440x1440", "3840x2160") & price < 500)
+nrow(jeftini_ogromna_rezolucija)
 # sa grafika zavisnosti cene od rezolucije ekrana (slika broj 29) postoje uređaji sa maksimalnom rezolucijom i cenom ispod 500$, što je nemoguće kakve god da su druge komponente, pa ćemo ih obrisati
 
 datav2 = datav2 %>% filter(!(resolution %in% c("3440x1440", "3840x2160") & price < 500))
 # obrisana su 2 podatka
 
-prejeftini_macovi = datav2 %>%
-  filter(os == "macOS" & price < 700)
+prejeftini_macovi = datav2 %>% filter(os == "macOS" & price < 700)
 nrow(prejeftini_macovi)
 # sa grafika zavisnosti cene od os-a (slika broj 41) postoje uređaji sa macOS ispod 700 što je nerealno jeftino čak i za polovne modele, a ovde pričamo o novima
 # rezultat ovog koda će biti 0 takvih podataka, jer je to bio uređaj koji je prethodno uklonjen zbog nečeg drugog, što nam drugi put potvrđuje da ovaj uređaj nije realan da postoji
   
-preskupi_chromeos = datav2 %>%
-  filter(os == "ChromeOS" & price > 9000)
+preskupi_chromeos = datav2 %>% filter(os == "ChromeOS" & price > 9000)
 nrow(preskupi_chromeos)
 # sa grafika zavisnosti cene od os-a (slika broj 41) vidimo da postoje uređaji koji imaju chromeOS koji imaju slabiji uređaji i uopšteno ga nema kod skupljih, rezultat za uređaj sa ovim os-om kakve god da su druge komponente, pa ćemo obrisati
 # rezultat ovog koda jeste 0, što nam govori da ovaj podatak i treba izbaciti, što smo ovde i drugi put dokazali, jer su uređaji sklonjeni prilikom nekog od prethodnih čišćenja podataka
@@ -647,35 +652,64 @@ nrow(preskupi_chromeos)
 
 ### Multivarijantni modeli
 
-ggplot(data = data) + geom_point(mapping = aes(x = weight_kg, y = price, color = release_year))
+ggplot(data = datav2) + geom_point(mapping = aes(x = weight_kg, y = price, color = release_year))
 
-ggplot(data = data) + geom_point(mapping = aes(x = cpu_tier, y = ram_gb, color = os))
+ggplot(data = datav2) + geom_point(mapping = aes(x = cpu_tier, y = ram_gb, color = os))
 # na osnovu toga koji je operativni sistem mozemo pretpostaviti koliko rama ima i cpu_tier
 # vidimo da Windows podrazumeva u vecini slucajeva jaci racunar, dok linux i macOS nisu toliko zahtevni
 
-ggplot(data = data) + geom_point(mapping = aes(x = cpu_tier, y = price, color = cpu_brand), position = "jitter")
+ggplot(data= datav2) + geom_point(mapping = aes(x = cpu_tier, y = price, color = cpu_brand), position = "jitter")
 # sa grafika mozemo videti da su Apple procesori generalno skuplji od ostalih za isti tier
 # dok su AMD i Intel podjednake cene
 
-ggplot(data = data) + geom_point(mapping = aes(x = storage_gb, y = price, color = device_type), position = "jitter", alpha = 1/5)
+ggplot(data = datav2) + geom_point(mapping = aes(x = storage_gb, y = price, color = device_type), position = "jitter", alpha = 1/5)
 
-cor(data[,c(4, 9, 10, 11, 12, 13, 16, 17, 18, 20, 21, 23, 25, 26, 27, 28, 30, 31, 32, 33)])
+cor(datav2[,c(4, 9, 10, 11, 12, 13, 16, 17, 18, 20, 21, 23, 25, 26, 27, 28, 30, 31, 32, 33)])
 
+# EDA
 
+numericke_kolone = datav2 %>% select_if(is.numeric)
+names(numericke_kolone)
+# izdvajamo samo kolone koje su numeričke, jer samo između njih možemo videti korelaciju, ima ih 20
+# korelacija je statistička mera koja opisuje jačinu i smer linearne povezanosti između dve ili više numeričkih varijabli, tačnije da li se promenom jedne varijable menja i druga
+# bliže 1 je sve više pozitivna korelacija tj. kako jedna raste i druga raste, kako je bliže -1, kako jedna raste druga opada, negativna korelacija, bliže 0, sve je manja povezanost
+## select_if se koristi za selekciju kolona iz uslova koji ce se staviti unutar zagrada a to je da li je tip podataka u koloni numericki i names ispisuje samo nazive kolona gde jeste
 
+matrica_korelacije = cor(numericke_kolone, use = "complete.obs")
+matrica_korelacije
+# izračunavanje korelacije između svaka dva numerička obeležja i prikaz rezultata
+## coor izracunava kolika je korelacija tj povezanost, a use kaze kako ce se raditi sa NA vrednostima, complete.obs kaze radi samo sa redovima koji nemaju NA, kod nas nigde nema NA tako da se koristi sve
 
+sort(matrica_korelacije[,"price"], decreasing = TRUE)
+# ispis matrice koja prikazuje kolika je korelacija svakog numeričkog atributa sa price, sortirano opadajuće, da se odmah vidi koja su obeležja pojedinačno najbolja
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ggcorrplot(
+  matrica_korelacije,
+  hc.order = TRUE,           
+  type = "full",             
+  lab = TRUE,                
+  lab_size = 2.5,            
+  colors = c("red", "white", "blue"),
+  outline.col = "gray",
+  ggtheme = ggplot2::theme_minimal()
+) +
+labs(
+  title = "Korelaciona matrica numeričkih promenljivih",
+  subtitle = "Prikaz svih parova promenljivih (gornji i donji trougao)"
+) +
+theme(
+  plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+  plot.subtitle = element_text(hjust = 0.5, size = 12),
+  axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
+)
+# iscrtavanje malopre pomenute matrice, samo grafički kako bi se lakše posmatralo
+# što je više plavo jača je pozitivna korelacija, što je više crveno to je više negativno korelisano
+# donji i gornji trougao su preslikvanje, pa su isti, ali su nacrtana oba kako bi grafik bio lepši i naravno na dijagonali su sve jedinice, svako obeležje ima korelaciju 1 sa samim sobom što je i logično
+## sto se tice koda uglv neko bojenje i ostalo je sve pojasnjeno iznad
+# jake pozitivne korelacije sa ciljnom promenljivom su gpu_tier, cpu_tier, ram_gb, cpu_cores, cpu threads, cpu_baze_ghz, cpu_boost_ghz i vram?gb
+# cena najviše zavisi od hardverskih perfomansi CPU, GPU, RAM i slično i to će biti naši glavni prediktori za budući model
+# slabe pozitivne korelacije su sa storage_gb, release_year, refresh_hz, bluetooth, warranty_months i slično. 
+# same po sebi ne utiču mnogo, ali sa nečim u kombinaciji ovo se može povećati
+# negativne korelacije su sa weight_kg, display_size_in, psu_watts i druge. Vrednosti su uglavnom dosta bliže 0, tako da i nema neke velike povezanosti
+# snažne međusobne korelacije jesu između cpu_base_ghz i cpu_boost_ghz, cpu_tier sa bilo čim iz cpu dela, gpu_tier i vram i druge, uzimaćemo po našoj proceni bitniju od svake dve kako ne bismo došli do multikolinearnonsti
+# 
