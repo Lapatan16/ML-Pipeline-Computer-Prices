@@ -712,7 +712,7 @@ theme(
 # same po sebi ne utiču mnogo, ali sa nečim u kombinaciji ovo se možda može povećati
 # negativne korelacije su sa weight_kg, display_size_in, psu_watts i druge. Vrednosti su uglavnom dosta bliže 0, tako da i nema neke velike povezanosti
 # snažne međusobne korelacije jesu između cpu_base_ghz i cpu_boost_ghz, cpu_tier sa bilo čim iz cpu dela, gpu_tier i vram i druge, uzimaćemo po našoj proceni bitniju od svake dve kako ne bismo došli do multikolinearnonsti
-# multikolinearnost je !!!!!!!!!!!!!!!!!!!!!!!!!!
+# kada su dve ili vise promenljive međusobno visoko korelisane kazemo da su multikolinearne
 
 # sve kategorijske promenljive pretvaramo u factor. Factor je poseban tip promenljive koji služi da predstavi kategorijske promenljive, kažemo R-u da ova obeležja nemaju numeričko značenje već su podaci podeljeni po grupama
 # umesto da kategorijske promenljive budu string-ovi pretvaraju se u factor kako bi grafici mogli da se pravilno iscrtaju, da se podaci lakse skladište i da bi mogle da se definišu i ordered promenljive
@@ -739,7 +739,7 @@ datav2$cpu_tier = factor(
 )
 # pretvaramo u ordered obeležje, kategorijsko je i jako je bitan redosled
 ## ordered + TRUE znači da je ovo ordered factor promenljiva i levels = sort(unique(datav2$cpu_tier)) name kaže 
-datav2$gpu_tier <- factor(
+datav2$gpu_tier = factor(
   datav2$gpu_tier,
   levels = sort(unique(datav2$gpu_tier)),
   ordered = TRUE
@@ -747,3 +747,52 @@ datav2$gpu_tier <- factor(
 # isto kao i za cpu_tier
 # obeležja poput model, i  ne pretvaramo, jer nisu previše bitni za model i ima hiljade i hiljade različitih kategorija, nema nekih kategorija
 # numerička obeležja ostaju onakva kakva i jesu
+
+# nakon iscrtavanja početnih grafika i njihove analize, čišćenja i sređivanja podataka i naravno uz pomoć domenskog znanja u EDA fazi izdvojićemo nekoliko grafika koje smatramo da su najbitniiji
+
+# 1) boxplot cene u zavisnosti od ranga procesora
+
+ggplot(datav2, aes(x = cpu_tier, y = price)) +
+  geom_boxplot(fill = "skyblue") +
+  labs(title = "Cena u odnosu na CPU Tier",
+       x = "CPU Tier", y = "Cena (USD)") +
+  theme_minimal()
+
+# boxplot-ovi nam pokazuju da cena jasno raste sa povećanjem ranga procesora, medijana se postepeno povećava.
+# svaki rang takođe može imati i skuplje i jeftinije uređaje, u zavisnosti od drugih komponenti, procesor je svakako jedna od najbitnijih komponenti uređaja, ali i jačina ostalih komponenti može znatno da smanji ili poveća cenu
+# kod većih rangova veći je i raspon cena, skuplji uređaji mogu biti raznih vrsta gaming uređaji, premium brendovi i slično, negde je jak procesor i ostale komponente su slabije, negde je obrnuto, tako da i cene koje odskaču su sasvim realne
+# cene koje odskaču kod nižih rangova su uglavnom gaming računari sa jakom grafičkom karticom ili sa mnogo memorije ili velikim RAM-om
+
+# 2) boxplot cene u zavisnosti od ranga grafičke kartice
+
+ggplot(datav2, aes(x = gpu_tier, y = price)) +
+  geom_boxplot(fill = "tomato") +
+  labs(title = "Cena u odnosu na GPU Tier",
+       x = "GPU Tier", y = "Cena (USD)") +
+  theme_minimal()
+
+# boxplot-ovi nam pokazuju da je ovaj prediktor još važniji za cenu, medijane takođe pravilno rastu sa povećanjem ranga procesora
+# niži rangovi (1 i 2) uglavnom ne prelaze neki srednji cenovni rang, kao i za prethodno uređaji većih rangovima sa velikim cenama su neke profesionalne radne stanice ili neki jako dobri gaming uređaji
+# takođe kod nižih rangova nema uređaja koji su mnogo skupi, jer je gpu uglavnom i najskuplja komponenta uređaja (naravno uz procesor)
+
+# 3) boxplot cene u zavisnosti od vrste operativnog sistema
+
+ggplot(datav2, aes(x = os, y = price)) +
+  geom_boxplot(fill = "lightgreen") +
+  labs(title = "Cena u odnosu na operativni sistem",
+       x = "Operativni sistem", y = "Cena (USD)") +
+  theme_minimal()
+
+# boxplot-ovi nam pokazuju da uređaji sa mac operativnim sistemom imaju ubedljivo najvišu medijanu i takođe imaju i velik cenovni opseg tako da su njihovi uređaji ubedljivo najskuplji
+# uređaji sa windows operativnim sistemom imaju i najveći cenovni opseg, najviše uređaja i koristi ovaj os i postoji gomila uređaja od najjeftinijih do najskupljih
+# uređaji sa chrome operativnim sistemo imaju najmanju medijanu i najmanji broj outlier-a i to su uglavnom uređaji sa slabijim i jeftinijim komponentama i služe za obavljanje osnovnih zadataka, obrazovanje i slično
+# uređaji sa linux os-om su uglavnom stabilni i nižih cena, većih od chrome os-a, ali ne sa nešto prezahtevnim hardverom
+# ovaj prediktor i nije toliko jako povezan sa cenom kao prethodni, ali je dobar pokazatelj kakva je cena u odnosu na neku kategoriju
+
+# 4) boxplot cene u zavisnosti od vrste operativnog sistema
+
+ggplot(datav2, aes(x = storage_type, y = price)) +
+  geom_boxplot(fill = "khaki") +
+  labs(title = "Cena u odnosu na tip skladišta",
+       x = "Tip skladišta", y = "Cena (USD)") +
+  theme_minimal()
