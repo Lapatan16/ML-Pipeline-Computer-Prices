@@ -789,39 +789,31 @@ ggplot(datav2, aes(x = os, y = price)) +
 # uređaji sa linux os-om su uglavnom stabilni i nižih cena, većih od chrome os-a, ali ne sa nešto prezahtevnim hardverom
 # ovaj prediktor i nije toliko jako povezan sa cenom kao prethodni, ali je dobar pokazatelj kakva je cena u odnosu na neku kategoriju
 
-# 4) boxplot cene u zavisnosti od vrste operativnog sistema
-
-ggplot(datav2, aes(x = storage_type, y = price)) +
-  geom_boxplot(fill = "khaki") +
-  labs(title = "Cena u odnosu na tip skladišta",
-       x = "Tip skladišta", y = "Cena (USD)") +
-  theme_minimal()
-
-# 5) Cena u odnosu na veličinu ram memorije
+# 4) Cena u odnosu na veličinu ram memorije
 
 ggplot(datav2, aes(x = ram_gb, y = price)) +
-  geom_boxplot(fill = "lightblue") +
+  geom_point() +
   labs(title = "Cena u odnosu na veličinu ram memorije",
-       x = "Tip skladišta", y = "Cena (USD)") +
+       x = "Veličina RAM-a", y = "Cena (USD)") +
   theme_minimal()
 
-# 6) Cena u odnosu na broj jezgara procesora
+# 5) Cena u odnosu na broj jezgara procesora
 
 ggplot(datav2, aes(x = cpu_cores, y = price)) +
-  geom_boxplot(fill = "lightblue") +
+  geom_point() +
   labs(title = "Cena u odnosu na broj jezgara procesora",
-       x = "Tip skladišta", y = "Cena (USD)") +
+       x = "Broj jezgara", y = "Cena (USD)") +
   theme_minimal()
 
-# 7) Cena u odnosu na base GHZ
+# 6) Cena u odnosu na base GHZ
 
 ggplot(datav2, aes(x = cpu_base_ghz, y = price)) +
-  geom_boxplot(fill = "lightblue") +
+  geom_point() +
   labs(title = "Cena u odnosu na base GHZ",
-       x = "Tip skladišta", y = "Cena (USD)") +
+       x = "CPU base (GHZ)", y = "Cena (USD)") +
   theme_minimal()
 
-# 8) Uticaj tipa eksterne memorije na količinu memorije i cenu uređaja
+# 7) Uticaj tipa eksterne memorije na količinu memorije i cenu uređaja
 
 ggplot(datav2, aes(x = storage_gb, y = price, color = storage_type)) +
   geom_point(alpha = 1/3) +
@@ -832,7 +824,7 @@ ggplot(datav2, aes(x = storage_gb, y = price, color = storage_type)) +
     y = "Cena u dolarima"
   )
 
-# 9) Uticaj ranga procesora i ranga grafičke kartice na cenu
+# 8) Uticaj ranga procesora i ranga grafičke kartice na cenu
 
 ggplot(datav2, aes(x = cpu_tier, y = price, color = gpu_tier)) +
   geom_point(alpha = 1/3) +
@@ -843,6 +835,7 @@ ggplot(datav2, aes(x = cpu_tier, y = price, color = gpu_tier)) +
     y = "Cena u dolarima"
   )
 
+str(datav2)
 
 
 
