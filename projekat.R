@@ -817,7 +817,7 @@ ggplot(datav2, aes(x = cpu_cores, y = price)) +
 # Vidimo da imamo outliere koje nismo sklonili jer su nam bitne te vrednosti kod drugih 
 # komponenti. Sa grafika se može primetiti da sve vrednosti idu za po 2 (4, 6, 8, 10, …)
 # do 20 i onda imamo skok na 24. Razlog tome nije što ne postoje procesori sa 22 
-# jezgara, nego u ovom konkretnom dataset-u nije zabeležen ni jedan procesor sa 22 jezgara.
+# jezgra, nego u ovom konkretnom dataset-u nije zabeležen ni jedan procesor sa 22 jezgra.
 
 # 6) Cena u odnosu na base GHZ
 
@@ -835,7 +835,40 @@ ggplot(datav2, aes(x = cpu_base_ghz, y = price)) +
 # procesora je to što donja granica do 3.0 GHZ gotovo da i ne raste, što nam govori da 
 # brzina procesora ne mora biti preterano dobar prediktor.
 
-# 7) Uticaj tipa eksterne memorije na količinu memorije i cenu uređaja
+# 7) boxplot cene u zavisnosti od proizvođača uređaja
+
+ggplot(datav2, aes(x = brand, y = price)) +
+  geom_boxplot(fill = "lightblue", outlier.alpha = 0.4) +
+  scale_y_continuous(labels = scales::comma) +
+  labs(
+    title = "Cena u odnosu na brend uređaja",
+    x = "Brend",
+    y = "Cena (USD)"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+# boxplot-ovi sa slike iznad nam pokazuju da se proizvođač Apple dosta izdvaja od ostalih i njegova medijana je znatno veća
+# Apple dosta pored komponenti naplaćuje i brand, pa je i logično da bude ovako, pored ove i Razer malo odskače sa medijanom, kao jeftinija marka od Apple, ali skuplja od svih ostalih
+# Razer uređaji su uglavnom gejmerski pa je i logično što imaju veću cenu, ostale marke nude uređaji raznih cena od najjeftinijih do najskupljih, što je najviše povezavano sa komponentama, a ne samim brendom
+# Acer je jedini koji ima manju medijanu, jer on najčešće nudi uređaje niske i srednje klase
+
+# 8) boxplot cene u zavisnosti od vrste uređaja
+
+ggplot(datav2, aes(x = device_type, y = price)) +
+  geom_boxplot(fill = "lightblue") +
+  labs(title = "Cena laptopova i desktop računara",
+       x = "Tip uređaja", y = "Cena (USD)") +
+  theme_minimal()
+
+# boxplot-ovi iznad pokazuju da su laptopovi skuplji od računara, što smo i ranije zaključili
+# medijana im je veća i imaju više cena koje odskaču nego računari, ali je to sasvim normalno, laptopovi imaju integrisane komponente, drugačiji sistem hlađenja, prenosivi su i slično
+# jednak nivo performansi kod laptopova i računara uvek će laptopovi biti skuplji, kod oba tipa cene koje odskaču su uglavnom gaming uređaji i profesionalni modeli i u sasvim su realnom opsegu
+
+# 9) Uticaj tipa eksterne memorije na količinu memorije i cenu uređaja
 
 ggplot(datav2, aes(x = storage_gb, y = price, color = storage_type)) +
   geom_point(alpha = 1/3) +
@@ -856,7 +889,7 @@ ggplot(datav2, aes(x = storage_gb, y = price, color = storage_type)) +
 # granicu, što nam može govoriti o tome da HDD nije popularna opcija i da često kupci 
 # biraju brže eksterne memorije.
 
-# 8) Uticaj ranga procesora i ranga grafičke kartice na cenu
+# 10) Uticaj ranga procesora i ranga grafičke kartice na cenu
 
 ggplot(datav2, aes(x = cpu_tier, y = price, color = gpu_tier)) +
   geom_point(alpha = 1/3) +
@@ -874,7 +907,4 @@ ggplot(datav2, aes(x = cpu_tier, y = price, color = gpu_tier)) +
 # Na ovom grafiku možemo videti da imaju i međusobnu zavisnost i to nam takođe potvrđuje
 # i matrica zavisnosti 0.86. Tako da možemo razmatrati korišćenje samo jednog od ova 
 # 2 prediktora za predikciju cene u modelu.
-
-
-
 
