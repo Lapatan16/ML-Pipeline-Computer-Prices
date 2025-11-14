@@ -796,3 +796,57 @@ ggplot(datav2, aes(x = storage_type, y = price)) +
   labs(title = "Cena u odnosu na tip skladišta",
        x = "Tip skladišta", y = "Cena (USD)") +
   theme_minimal()
+
+# 5) Cena u odnosu na veličinu ram memorije
+
+ggplot(datav2, aes(x = ram_gb, y = price)) +
+  geom_boxplot(fill = "lightblue") +
+  labs(title = "Cena u odnosu na veličinu ram memorije",
+       x = "Tip skladišta", y = "Cena (USD)") +
+  theme_minimal()
+
+# 6) Cena u odnosu na broj jezgara procesora
+
+ggplot(datav2, aes(x = cpu_cores, y = price)) +
+  geom_boxplot(fill = "lightblue") +
+  labs(title = "Cena u odnosu na broj jezgara procesora",
+       x = "Tip skladišta", y = "Cena (USD)") +
+  theme_minimal()
+
+# 7) Cena u odnosu na base GHZ
+
+ggplot(datav2, aes(x = cpu_base_ghz, y = price)) +
+  geom_boxplot(fill = "lightblue") +
+  labs(title = "Cena u odnosu na base GHZ",
+       x = "Tip skladišta", y = "Cena (USD)") +
+  theme_minimal()
+
+# 8) Uticaj tipa eksterne memorije na količinu memorije i cenu uređaja
+
+ggplot(datav2, aes(x = storage_gb, y = price, color = storage_type)) +
+  geom_point(alpha = 1/3) +
+  facet_wrap(~ storage_type) +
+  theme_minimal() + labs(
+    title = "Uticaj tipa eksterne memorije na količinu memorije i cenu uređaja",
+    x = "Količina memorije",
+    y = "Cena u dolarima"
+  )
+
+# 9) Uticaj ranga procesora i ranga grafičke kartice na cenu
+
+ggplot(datav2, aes(x = cpu_tier, y = price, color = gpu_tier)) +
+  geom_point(alpha = 1/3) +
+  facet_wrap(~ gpu_tier) +
+  theme_minimal() + labs(
+    title = "Uticaj ranga procesora i ranga grafičke kartice na cenu",
+    x = "Rang procesora (tier)",
+    y = "Cena u dolarima"
+  )
+
+
+
+
+
+
+
+
