@@ -664,7 +664,7 @@ ggplot(data = datav2) + geom_point(mapping = aes(x = cpu_tier, y = price, color 
 
 ggplot(data = datav2) + geom_point(mapping = aes(x = storage_gb, y = price, color = device_type), position = "jitter", alpha = 1/5)
 
-cor(datav2[,c(4, 9, 10, 11, 12, 13, 16, 17, 18, 20, 21, 23, 25, 26, 27, 28, 30, 31, 32, 33)])
+cor(data[,c(4, 9, 10, 11, 12, 13, 16, 17, 18, 20, 21, 23, 25, 26, 27, 28, 30, 31, 32, 33)])
 
 # EDA
 
@@ -797,6 +797,12 @@ ggplot(datav2, aes(x = ram_gb, y = price)) +
        x = "Veličina RAM-a", y = "Cena (USD)") +
   theme_minimal()
 
+# RAM nam predstavlja dobar prediktor cene, jer RAM prati trend što više rama to 
+# više para. Takvu odliku možemo videti i sa grafika, gde možemo jasno primetiti 
+# da donja granica raste sa porastom RAM-a. Možemo takođe primetiti da smo ostavili 
+# određeni broj outliera iz razloga što RAM nije najbitniji prediktor i te ekstremnije 
+# vrednosti nam znače za predviđanje cene kroz druge prediktore.
+
 # 5) Cena u odnosu na broj jezgara procesora
 
 ggplot(datav2, aes(x = cpu_cores, y = price)) +
@@ -805,6 +811,14 @@ ggplot(datav2, aes(x = cpu_cores, y = price)) +
        x = "Broj jezgara", y = "Cena (USD)") +
   theme_minimal()
 
+# Broj jezgara unutar procesora nam predstavlja dobar prediktor jer ima dobru 
+# linearnu korelaciju 0.73, što se može videti sa matrice korelacije. Takođe, na 
+# grafiku isto možemo primetiti da sa porastom broja jezgara, raste i cena uređaja. 
+# Vidimo da imamo outliere koje nismo sklonili jer su nam bitne te vrednosti kod drugih 
+# komponenti. Sa grafika se može primetiti da sve vrednosti idu za po 2 (4, 6, 8, 10, …)
+# do 20 i onda imamo skok na 24. Razlog tome nije što ne postoje procesori sa 22 
+# jezgara, nego u ovom konkretnom dataset-u nije zabeležen ni jedan procesor sa 22 jezgara.
+
 # 6) Cena u odnosu na base GHZ
 
 ggplot(datav2, aes(x = cpu_base_ghz, y = price)) +
@@ -812,6 +826,14 @@ ggplot(datav2, aes(x = cpu_base_ghz, y = price)) +
   labs(title = "Cena u odnosu na base GHZ",
        x = "CPU base (GHZ)", y = "Cena (USD)") +
   theme_minimal()
+
+# Na grafiku iznad imamo odnos brzine procesora u GHZ i cene. Ako malo bolje 
+# pogledamo, videćemo da postoji blage pozitivne linearne korelacije između brzine 
+# procesora i cene. To nije uopšte neočekivano ponašanje, jer brzina često diktira 
+# cenu nekog uređaja, ne samo kod računara. Što se tiče outliera, ostali su određeni 
+# outlieri jer su nam potrebni u drugim komponentama. Ono što je zanimljivo kod brzine 
+# procesora je to što donja granica do 3.0 GHZ gotovo da i ne raste, što nam govori da 
+# brzina procesora ne mora biti preterano dobar prediktor.
 
 # 7) Uticaj tipa eksterne memorije na količinu memorije i cenu uređaja
 
@@ -824,6 +846,16 @@ ggplot(datav2, aes(x = storage_gb, y = price, color = storage_type)) +
     y = "Cena u dolarima"
   )
 
+# Na grafiku iznad imamo prikazan uticaj tipa eksterne memorije na količinu memorije 
+# i cenu uređaja. Možemo primetiti da se nije mnogo toga promenilo nakon čišćenja 
+# dataseta. Gornja granica HDD-a je i dalje niža od gornje granicu ostalih vrsta. 
+# Dok je donja granica približno slična kod svih vrsta memorija za sve vrednosti 
+# memorije. Iz toga možemo izvući zaključak da nam vrsta memorije ne daje ogromno 
+# znanje. Sve vrednosti imaju pozitivnu linearnu zavisnost, tj. sa porastom količine 
+# eksterne memorije, raste i početna cena, osim kod HDD-a. HDD drži konstantnu donju 
+# granicu, što nam može govoriti o tome da HDD nije popularna opcija i da često kupci 
+# biraju brže eksterne memorije.
+
 # 8) Uticaj ranga procesora i ranga grafičke kartice na cenu
 
 ggplot(datav2, aes(x = cpu_tier, y = price, color = gpu_tier)) +
@@ -835,10 +867,13 @@ ggplot(datav2, aes(x = cpu_tier, y = price, color = gpu_tier)) +
     y = "Cena u dolarima"
   )
 
-str(datav2)
-
-
-
+# Na grafiku iznad je prikazan uticaj ranga procesara i ranga grafičke kartice na cenu. 
+# Možemo videti da posle čišćenja podata imamo manje outliera. Znamo da su rang 
+# procesora i rang grafičke kartice dosta dobri prediktori. To možemo videti sa matrice
+# korelacija, gde rang procesora ima linearnu zavisnost od 0.77 i rang grafičke kartice 0.78. 
+# Na ovom grafiku možemo videti da imaju i međusobnu zavisnost i to nam takođe potvrđuje
+# i matrica zavisnosti 0.86. Tako da možemo razmatrati korišćenje samo jednog od ova 
+# 2 prediktora za predikciju cene u modelu.
 
 
 
