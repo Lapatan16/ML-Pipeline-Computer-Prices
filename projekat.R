@@ -604,6 +604,13 @@ datav2 = datav2 %>% filter(!(brand == "Apple" & os != "macOS"))
 nrow(datav2)
 # za prethodne 2 stvari smo koristili domensko znanje, koje nam je mnogo pomoglo da uočimo nepravilnosti i da ih potom ispitamo
 
+ggplot(data = datav2) + geom_point(mapping = aes(x = os, y = brand)) + theme_minimal() + labs(
+  title = "Operativni sistemi na različitim proizvođačima",
+  x = "Operativni sistem",
+  y = "Marka proizvođača"
+)
+
+
 # proveravamo još neke nelogične vrednosti
 desktop_with_battery = datav2 %>% filter(device_type == "Desktop" & battery_wh > 0)
 nrow(desktop_with_battery)
@@ -630,6 +637,12 @@ nrow(preskupi_racunari)
 datav2 = datav2 %>% filter(!((device_type == "Desktop" & price > 8000) | (device_type == "Laptop" & price > 10000)))
 # obrisali smo 4 ovakva podatka
 
+ggplot(data = datav2) + geom_point(mapping = aes(x = device_type, y = price)) + theme_minimal() + labs(
+  title = "Odnos tipa uređaja i cene",
+  x = "Tip uređaja",
+  y = "Cena (USD)"
+)
+
 skupi_slab_gpu = datav2 %>% filter(gpu_tier == 1 & price > 6000)
 nrow(skupi_slab_gpu)
 # sa grafika zavisnosti cene od ranga grafičke kartice (slika broj 19) postoje uređaji koji koštaju preko 6000$, a najnižeg su nivoa grafičke kartice, što nije moguće, kakve god da su im druge komponente i ovaj podatak se dosta ističe od drugih, pa ćemo ga obrisati
@@ -637,12 +650,24 @@ nrow(skupi_slab_gpu)
 datav2 = datav2 %>% filter(!(gpu_tier == 1 & price > 6000))
 # obrisali smo jedan podatak
 
+ggplot(data = datav2) + geom_point(mapping = aes(x = gpu_tier, y = price)) + theme_minimal() + labs(
+  title = "Odnos ranga grafičke kartice i cene",
+  x = "Rang grafičke kartice",
+  y = "Cena (USD)"
+)
+
 jeftini_ogromna_rezolucija = datav2 %>% filter(resolution %in% c("3440x1440", "3840x2160") & price < 500)
 nrow(jeftini_ogromna_rezolucija)
 # sa grafika zavisnosti cene od rezolucije ekrana (slika broj 29) postoje uređaji sa maksimalnom rezolucijom i cenom ispod 500$, što je nemoguće kakve god da su druge komponente, pa ćemo ih obrisati
 
 datav2 = datav2 %>% filter(!(resolution %in% c("3440x1440", "3840x2160") & price < 500))
 # obrisana su 2 podatka
+
+ggplot(data = datav2) + geom_point(mapping = aes(x = resolution, y = price)) + theme_minimal() + labs(
+  title = "Odnos rezolucije ekrana i cene",
+  x = "Rezolucija ekrana",
+  y = "Cena (USD)"
+)
 
 prejeftini_macovi = datav2 %>% filter(os == "macOS" & price < 700)
 nrow(prejeftini_macovi)
