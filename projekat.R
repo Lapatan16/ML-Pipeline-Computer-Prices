@@ -582,6 +582,12 @@ nrow(datav2)
 # sada nam ostaje 83968, uklonjeno je oko 16% postojećih podataka
 # znamo i da apple uređaji ne mogu imati neki drugi os osim ako npr imaju intel procesor što je i bio slučaj do pre nekoliko godina, pa ćemo proveriti i takve
 
+ggplot(data = datav2) + geom_point(mapping = aes(x = os, y = brand)) + theme_minimal() + labs(
+  title = "Operativni sistemi na različitim proizvođačima",
+  x = "Operativni sistem",
+  y = "Marka proizvođača"
+)
+
 apple_intel_procesor <- datav2 %>% filter(brand == "Apple" & cpu_brand == "Intel")
 nrow(apple_intel_procesor)
 # apple uređaja sa intel procesorima nema
