@@ -32,8 +32,6 @@ data/*.tsv
 cache/
 *.utf8.md
 *.knit.md
-*.html
-*.pdf
 
 # Renviron (private configuration)
 .Renviron
