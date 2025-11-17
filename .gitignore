@@ -3,7 +3,7 @@
 .Rapp.history
 
 # Session data
-.RData
+.RData*
 .Ruserdata
 
 # RStudio project files
