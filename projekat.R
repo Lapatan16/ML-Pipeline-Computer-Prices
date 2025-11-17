@@ -939,3 +939,21 @@ ggplot(datav2, aes(x = cpu_tier, y = price, color = gpu_tier)) +
 # i matrica zavisnosti 0.86. Tako da možemo razmatrati korišćenje samo jednog od ova 
 # 2 prediktora za predikciju cene u modelu.
 
+#####
+##Feature Engineering
+#####
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
