@@ -943,14 +943,63 @@ ggplot(datav2, aes(x = cpu_tier, y = price, color = gpu_tier)) +
 ##Feature Engineering
 #####
 
+datav3 = datav2
 
+str(datav3)
 
+# uklanjanje modela
 
+datav3$model = NULL
 
+# uklanjanje gpu_modela
 
+datav3$gpu_model = NULL
 
+# uklanjanje form_factora
 
+datav3$form_factor = NULL
 
+# uklanjanje drive_count
+
+datav3$storage_drive_count = NULL
+
+# uklanjanje display_type
+
+datav3$display_type = NULL
+
+# uklanjanje display_size
+
+datav3$display_size_in = NULL
+
+# uklanjanje charger_watts
+
+datav3$charger_watts = NULL
+
+# uklanjanje psu_wats
+
+datav3$psu_watts = NULL
+
+# uklanjanje wifi
+
+datav3$wifi = NULL
+
+# uklanjanje bluetooth
+
+datav3$bluetooth = NULL
+
+#uklanjanje težine
+
+datav3$weight_kg = NULL
+
+# provera za display_type
+
+ggplot(data = datav3) + geom_point(mapping = aes(x = warranty_months, y = price))
+
+# garancija ostaje jer se viid da sa porastom garancije smanjuje se cena
+
+# provera za form faktor
+
+ggplot(data = datav3) + geom_point(mapping = aes(x = form_factor, y = price))
 
 
 
