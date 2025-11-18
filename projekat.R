@@ -951,6 +951,8 @@ str(datav3)
 
 datav3$model = NULL
 
+ggplot(data = datav2) + geom_point(mapping = aes(x = model, y = price))
+
 # uklanjanje gpu_modela
 
 datav3$gpu_model = NULL
@@ -959,13 +961,11 @@ datav3$gpu_model = NULL
 
 datav3$form_factor = NULL
 
-# uklanjanje drive_count
-
-datav3$storage_drive_count = NULL
-
 # uklanjanje display_type
 
 datav3$display_type = NULL
+
+ggplot(data = datav2) + geom_point(mapping = aes(x = display_size_in, y = price))
 
 # uklanjanje display_size
 
@@ -975,21 +975,31 @@ datav3$display_size_in = NULL
 
 datav3$charger_watts = NULL
 
+ggplot(data = datav2) + geom_point(mapping = aes(x = charger_watts, y = price))
+
 # uklanjanje psu_wats
 
 datav3$psu_watts = NULL
+
+ggplot(data = datav2) + geom_point(mapping = aes(x = psu_watts, y = price))
 
 # uklanjanje wifi
 
 datav3$wifi = NULL
 
+ggplot(data = datav2) + geom_point(mapping = aes(x = wifi, y = price))
+
 # uklanjanje bluetooth
 
 datav3$bluetooth = NULL
 
+ggplot(data = datav2) + geom_point(mapping = aes(x = bluetooth, y = price))
+
 #uklanjanje težine
 
 datav3$weight_kg = NULL
+
+ggplot(data = datav2) + geom_point(mapping = aes(x = weight_kg, y = price))
 
 # provera za display_type
 
@@ -997,9 +1007,9 @@ ggplot(data = datav3) + geom_point(mapping = aes(x = warranty_months, y = price)
 
 # garancija ostaje jer se viid da sa porastom garancije smanjuje se cena
 
-# provera za form faktor
+###
 
-ggplot(data = datav3) + geom_point(mapping = aes(x = form_factor, y = price))
+str(datav3)
 
 
 
