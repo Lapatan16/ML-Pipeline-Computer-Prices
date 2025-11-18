@@ -953,19 +953,38 @@ datav3$model = NULL
 
 ggplot(data = datav2) + geom_point(mapping = aes(x = model, y = price))
 
+# Prva kolona koja nam ne pomaže kod predikcije je model. Ta kolona sadrži nazive modela 
+# nekog uređaja. Tu vrstu podataka ne možemo iskoristiti za treniranje i predikciju cene, jer 
+# modela ima mnogo. Kada bismo trenirali model nad tim podacima, on ne bi mogao ništa da zaključi 
+# i kada bi se pojavio model koji nije bio u trening skupu, naš model bi napravio veliku grešku, 
+# Bolji prediktor nam predstavlja brend, iako je nepreciznija predikcija samo preko brenda, 
+# barem neće naš model da „preuči“, tj. da bude overfittovan na trening skupu.
+
 # uklanjanje gpu_modela
 
 datav3$gpu_model = NULL
 
+# Sledeća kolona za ukljanjanje je gpu_model. Analogno modelu uređaja, gpu_model nam ne daje 
+# dodatno znanje i ne predstavlja dobar prediktor, samo će dovesti do overfittovanja. Tako da 
+# ćemo i njega ukloniti iz našeg skupa.
+
 # uklanjanje form_factora
 
 datav3$form_factor = NULL
+
+# Dalje uklanjamo form_factor. Podaci su dosta razbacani, tj. podaci ne prate nikakav trend, i 
+# ima mnogo outliera. Ne možemo izvući dobre zaključke i znanje iz te kolone. Biće uklonjen u 
+# nastavku rada.
 
 # uklanjanje display_type
 
 datav3$display_type = NULL
 
 ggplot(data = datav2) + geom_point(mapping = aes(x = display_size_in, y = price))
+
+# Display_type je sledeća kolona koju uklanjamo. Nema značajnih trendova i ima dosta outlier-a.
+# Zajedno sa njom uklonićemo i display_size_in. Kolona koja ima mnogo outliera i dosta malo se
+# razlikuju cene po svim veličinama.
 
 # uklanjanje display_size
 
@@ -977,11 +996,19 @@ datav3$charger_watts = NULL
 
 ggplot(data = datav2) + geom_point(mapping = aes(x = charger_watts, y = price))
 
+# Sledeća kolona koju ćemo izbaciti je charger_watts. Samo laptopovi sadrže punjač, što znači 
+# da bi ovaj prediktor imao nulti uticaj na predviđanje desktop računara. Takođe nema dobru 
+# korelaciju sa cenom i ne prati nikakav trend. Može se desiti da je cena visoka za jači 
+# punjač, a može se desiti da je cena visoka za slab punjač.
+
 # uklanjanje psu_wats
 
 datav3$psu_watts = NULL
 
 ggplot(data = datav2) + geom_point(mapping = aes(x = psu_watts, y = price))
+
+# Psu_watts ima slabu korelaciju sa cenom, što se vidi sa matrice korelacija i takođe vizuelnu
+# sa grafika. Nije dobar prediktor i biće uklonjena iz skupa.
 
 # uklanjanje wifi
 
@@ -989,11 +1016,18 @@ datav3$wifi = NULL
 
 ggplot(data = datav2) + geom_point(mapping = aes(x = wifi, y = price))
 
+# Wifi ne utiče mnogo na cenu. To znamo iz domenskog znanja i takođe nam grafik potvrđuje. 
+# Iako ima određenu korelaciju sa cenom, znamo da svi novi uređaji imaju najjači wifi interfejs 
+# i da će retko ko imati mogućnost kupovine uređaja sa slabijim wifi interfejsom. Biće uklonjen.
+
 # uklanjanje bluetooth
 
 datav3$bluetooth = NULL
 
 ggplot(data = datav2) + geom_point(mapping = aes(x = bluetooth, y = price))
+
+# Bluetooth nema direktnu korelaciju sa cenom i ne prati nikakav trend. Ne dobijamo nikakvo 
+# znanje iz bluetooth-a i zato ćemo ukloniti tu kolonu u potpunosti.
 
 #uklanjanje težine
 
@@ -1001,15 +1035,29 @@ datav3$weight_kg = NULL
 
 ggplot(data = datav2) + geom_point(mapping = aes(x = weight_kg, y = price))
 
-# provera za display_type
+# Poslednja kolona, koju ćemo ukloniti je weight_kg. Ova kolona ne prati nikakav trend i 
+# nije dobar prediktor za cenu uređaja. Sa porastom težine, cena niti raste niti opada. 
+# Iz domenskog znanja takođe znamo da kada kupujemo desktop računar nikad ne gledamo težinu, 
+# a kod kupovine laptop računara gledamo težinu samo ako putujemo često, i tada težina dosta 
+# zavisi od veličine celokupnog laptopa i sa smanjenjem veličine ne moraju se nužno 
+# smanjiti performanse. Tako da vidimo da cena ne zavisi direktno od težine, te ćemo ukloniti 
+# tu kolonu.
+
+# provera za garanciju
 
 ggplot(data = datav3) + geom_point(mapping = aes(x = warranty_months, y = price))
 
-# garancija ostaje jer se viid da sa porastom garancije smanjuje se cena
+# garancija ostaje jer se vidi da sa porastom garancije smanjuje se cena
 
 ###
 
 str(datav3)
+
+#####
+## Feature Engineering
+####
+
+
 
 
 
