@@ -602,6 +602,7 @@ nrow(apple_nije_macos)
 
 datav2 = datav2 %>% filter(!(brand == "Apple" & os != "macOS"))
 nrow(datav2)
+# uređaji koje je proizveo Apple, nemaju mac os smo morali obrisati, a uređaje koji imaju mac os, a nisu Apple marke, smo mogli zameniti sa npr no operating system, ali ti podaci su svakako netačni u tip operativnog sistema je dobar prediktor, pa smo sve ove nelogičnosti obrisali
 # za prethodne 2 stvari smo koristili domensko znanje, koje nam je mnogo pomoglo da uočimo nepravilnosti i da ih potom ispitamo
 
 ggplot(data = datav2) + geom_point(mapping = aes(x = os, y = brand)) + theme_minimal() + labs(
@@ -1058,10 +1059,9 @@ str(datav3)
 ####
 
 # kao prvi feature koji bismo mogli dodati jeste upravo cpu_power_score koji predstavlja kolika je zapravo sirova snaga naseg procesora
-# to cemo dobiti upravo kombinacijom jezgara procesora i osnovnu frekvenciju procesora i nakon dodavanja crtamo grafik
+# to ćemo dobiti kombinacijom broja jezgara procesora i osnovne frekvencije procesora i nakon dodavanja crtamo grafik
 
-datav2$cpu_power_score <- datav2$cpu_cores * datav2$cpu_base_ghz
-
+datav2$cpu_power_score = datav2$cpu_cores * datav2$cpu_base_ghz
 
 ggplot(datav2, aes(x = cpu_power_score)) +
   geom_histogram(bins = 60, fill = "steelblue", alpha = 0.7, color = "black") +
@@ -1071,6 +1071,7 @@ ggplot(datav2, aes(x = cpu_power_score)) +
     y = "Broj uređaja"
   ) +
   theme_minimal()
+
 # grafik iznad pokazuje da se, kako je i očekivano, najveći broj računara nalazi u delu do 40 score-a, najčešće uređaji imaju po 8 ili 16 jezgara, sa 2.5 do 2.8 GHz snage procesora
 # manji broj uređaja ima score preko 60 što su upravo high-end računari, profesionalni laptopovi i slično
 
@@ -1082,10 +1083,43 @@ ggplot(datav2, aes(x = cpu_power_score, y = price)) +
     y = "Cena (USD)"
   ) +
   theme_minimal()
+
 # grafik zavisnosti cene od novog feature-a, može se primetiti da cena blago raste sa povećanjem score-a, ali ne preterano, postoji dosta outlier-a posebno u delu od 25 do 50 score-a
 # moglo bi se ovo podeliti u nekoliko kategorija, što bi se svelo na kolonu cpu_tier, pa to nećemo raditi
 
 cor(datav2$cpu_power_score, datav2$price)
-# korelacija je jaka i dobra, ali manja od cpu_tier, pre pretvaranja u factor, taj prediktor je ipak bolji, nećemo duplirati, pa nećemo ni da zadržimo ovaj feature
+# korelacija je jaka i dobra, malo manja od cpu_tier pre pretvaranja u factor, ovaj prediktor je svakako dobar i nećemo ovo pretvarati u kategorije pošto vec imamo cpu tier koji je ordinal factor promenljiva
+# cpu power score nije zamena za cpu tier, već je komplementaran numerički pokazatelj procesorske snage, za svaku od 6 kategorija iz cpu tier postoje uređaji i sa većom i sa manjom vrednošću novog prediktora, tako da se ne dupliraju podaci
 
-datav2$cpu_power_score = NULL
+# kao drugi feature u okviru fe-a bismo mogli dodati kombinaciju verovatno dva najbitnija obeležja na osnovu dosadašnjih analiza i na osnovu domenskog znanja, a to su cpu tier i gpu tier
+# procesor je osnovna stvar u uređaju sa kojom je sve povezano, a grafička kartica je najbitnija za performanse uređaja, pošto imamo raspoređene uređaje po rangu za oba ova pojedinačno zanima nas kakav će ishod biti kada se spoje
+
+datav2$cgt_score = as.numeric(datav2$cpu_tier) * as.numeric(datav2$gpu_tier)
+
+# pošto su cpu tier i gpu tier ranije još promenjeni u ordinalne factor promenljive koristimo njihovu nummeričku vrednost kako bismo ih pomnožili
+
+ggplot(datav2, aes(x = cgt_score)) +
+  geom_histogram(fill = "steelblue", bins = 40, color = "black", alpha = 0.7) +
+  labs(
+    title = "Distribucija Combined GPU–CPU Tier Score (CGT)",
+    x = "CGT Score",
+    y = "Broj uređaja"
+  ) +
+  theme_minimal()
+
+# pošto su za oba obeležja klase od 1 do 6, ovaj score ima vrednosti od 2 do 36, izuzetno je rupičast, tačnije dosta vrednosti nema, što je u redu, većina vrednosti je grupisana oko nekih delova
+# vrednosti sa dosta velikim score-om ima malo, to su uglavnom profesionalni uređaji, a i većina našeg skupa podataka jesu upravo računari srednje i niže klase, zato njih i ima najviše
+
+ggplot(datav2, aes(x = cgt_score, y = price)) +
+  geom_point(alpha = 0.3, color = "darkred") +
+  labs(
+    title = "Odnos CGT Score-a i cene uređaja",
+    x = "CGT Score",
+    y = "Cena (USD)"
+  ) +
+  theme_minimal()
+
+# na grafiku zavisnosti cene od cgt score-a cena postepeno raste kako raste i cgt score, outlieri su prisutni u većini score-ova i sasvim su realni, outlieri koji se malo više ističu u srednjoj klasi, najčešće je dosta veća cena posledica količine RAM memorije i njenog tipa
+
+cor(datav2$cgt_score, datav2$price)
+# korelacija je izuzetno visoka, najveća je od svih prediktora do sad, najbolji je pojedinačni prediktor, tako da itekako ga zadržavamo
