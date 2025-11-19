@@ -1057,10 +1057,35 @@ str(datav3)
 ## Feature Engineering
 ####
 
+# kao prvi feature koji bismo mogli dodati jeste upravo cpu_power_score koji predstavlja kolika je zapravo sirova snaga naseg procesora
+# to cemo dobiti upravo kombinacijom jezgara procesora i osnovnu frekvenciju procesora i nakon dodavanja crtamo grafik
+
+datav2$cpu_power_score <- datav2$cpu_cores * datav2$cpu_base_ghz
 
 
+ggplot(datav2, aes(x = cpu_power_score)) +
+  geom_histogram(bins = 60, fill = "steelblue", alpha = 0.7, color = "black") +
+  labs(
+    title = "Distribucija CPU Power Score",
+    x = "CPU Power Score (cores × GHz)",
+    y = "Broj uređaja"
+  ) +
+  theme_minimal()
+# grafik iznad pokazuje da se, kako je i očekivano, najveći broj računara nalazi u delu do 40 score-a, najčešće uređaji imaju po 8 ili 16 jezgara, sa 2.5 do 2.8 GHz snage procesora
+# manji broj uređaja ima score preko 60 što su upravo high-end računari, profesionalni laptopovi i slično
 
+ggplot(datav2, aes(x = cpu_power_score, y = price)) +
+  geom_point(alpha = 0.3, color = "darkred") +
+  labs(
+    title = "Odnos CPU Power Score-a i cene uređaja",
+    x = "CPU Power Score",
+    y = "Cena (USD)"
+  ) +
+  theme_minimal()
+# grafik zavisnosti cene od novog feature-a, može se primetiti da cena blago raste sa povećanjem score-a, ali ne preterano, postoji dosta outlier-a posebno u delu od 25 do 50 score-a
+# moglo bi se ovo podeliti u nekoliko kategorija, što bi se svelo na kolonu cpu_tier, pa to nećemo raditi
 
+cor(datav2$cpu_power_score, datav2$price)
+# korelacija je jaka i dobra, ali manja od cpu_tier, pre pretvaranja u factor, taj prediktor je ipak bolji, nećemo duplirati, pa nećemo ni da zadržimo ovaj feature
 
-
-
+datav2$cpu_power_score = NULL
