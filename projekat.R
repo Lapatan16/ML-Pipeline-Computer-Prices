@@ -8,6 +8,7 @@ library(scales)
 library(dplyr)
 library(corrplot)
 library(ggcorrplot)
+library(stringr)
 
 # ucitavanje skupa podataka i prikaz osnovnih stvari
 data = read.csv("computer_prices_all.csv")
@@ -1123,3 +1124,52 @@ ggplot(datav3, aes(x = cgt_score, y = price)) +
 
 cor(datav3$cgt_score, datav3$price)
 # korelacija je izuzetno visoka, najveća je od svih prediktora do sad, najbolji je pojedinačni prediktor, tako da itekako ga zadržavamo
+
+## generacije procesora
+
+datav3 <- datav3 %>% mutate(cpu_generation = case_when( 
+    str_detect(cpu_model, regex("i9|Ryzen 9|Pro|Max", ignore_case = FALSE)) ~ 4,
+    str_detect(cpu_model, regex("i3|Ryzen 3|M1", ignore_case = FALSE)) ~ 1, 
+    str_detect(cpu_model, regex("i5|Ryzen 5|M2", ignore_case = FALSE)) ~ 2, 
+    str_detect(cpu_model, regex("i7|Ryzen 7|M3", ignore_case = FALSE)) ~ 3, 
+    TRUE ~ NA_real_ 
+  ))
+
+ggplot(datav3, aes(x = cpu_generation)) +
+  geom_histogram(fill = "steelblue", bins = 4, color = "black", alpha = 0.7) +
+  labs(
+    title = "Distribucija generacije procesora",
+    x = "Generacija procesora",
+    y = "Broj uređaja"
+  ) +
+  theme_minimal()
+
+ggplot(datav3, aes(x = cpu_generation, y = price)) +
+  geom_point(alpha = 0.3, color = "darkred") +
+  labs(
+    title = "Odnos generacije procesora i cene uređaja",
+    x = "Generacija procesora",
+    y = "Cena (USD)"
+  ) +
+  theme_minimal()
+
+cor(datav3$cpu_generation, datav3$price) 
+# 0.7087494
+
+#datav3$cpu_generation = factor(
+#  datav3$cpu_generation,
+#  levels = sort(unique(datav3$cpu_generation)),
+#  ordered = TRUE
+#)
+
+##
+
+
+
+
+
+
+
+
+
+
