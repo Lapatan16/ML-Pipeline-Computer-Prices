@@ -1185,16 +1185,13 @@ datav4$log_price
 
 # TRAIN/TEST PODELA
 
-set.seed(123)  # da eksperimenti budu ponovljivi
+set.seed(123)
 
 n = nrow(datav4)
-n
+
 train_index = sample(seq_len(n), size = 0.8 * n)
-train_index
 train_data = datav4[train_index, ]
-train_data
 test_data = datav4[-train_index, ]
-test_data
 
 str(datav4)
 
