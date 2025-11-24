@@ -1201,7 +1201,7 @@ nrow(test_data)
 
 summary(train_data$log_price)
 summary(test_data$log_price)
-
+true_price <- test_data$price
 # LINEARNA REGRESIJA
 
 # MODEL 1
@@ -1381,37 +1381,99 @@ str(datav4)
 
 # RANDOM FOREST
 
-library(randomForest)
+# install.packages("ranger")
+# library(ranger)
+# 
+# rf_model <- ranger(log_price ~ cpu_tier + gpu_tier + ram_gb +
+#                      cpu_power_score + cgt_score + storage_gb +
+#                      brand + os + device_type + cpu_generation + vram_gb + release_year,
+#                    data=train_data,
+#   num.trees = 300,              # dovoljno za stabilan model, ali i brzo
+#   mtry = 6,                     # optimalno prema prethodnim testovima
+#   importance = "impurity",      # omogućava feature importance
+#   seed = 123
+# )
+# 
+# rf_pred <- expm1(predict(rf_model, test_data)$predictions)
+# 
+# true_price <- test_data$price
+# 
+# rf_rmse <- sqrt(mean((rf_pred - true_price)^2))
+# rf_mae  <- mean(abs(rf_pred - true_price))
+# rf_r2   <- 1 - sum((rf_pred - true_price)^2) / sum((true_price - mean(true_price))^2)
+# 
+# rf_rmse
+# rf_mae
+# rf_r2
+# 
+# imp <- data.frame(
+#   feature = names(rf_model$variable.importance),
+#   importance = rf_model$variable.importance
+# )
 
-# Najbolji Random Forest model za ovaj dataset
-rf_model <- randomForest(
+# library(ggplot2)
+# 
+# ggplot(imp, aes(x = reorder(feature, importance), y = importance)) +
+#   geom_col(fill = "dodgerblue") +
+#   coord_flip() +
+#   labs(
+#     title = "Random Forest – Feature Importance (ranger)",
+#     x = "Feature",
+#     y = "Importance"
+#   )
+
+install.packages("ranger")
+library(ranger)
+library(dplyr)
+library(ggplot2)
+
+# Finalni i optimizovani Random Forest
+rf_model <- ranger(
   log_price ~ cpu_tier + gpu_tier + ram_gb +
     cpu_power_score + cgt_score + storage_gb +
-    brand + os + device_type,
+    brand + os + device_type + cpu_generation +
+    vram_gb + release_year + battery_wh + warranty_months,
   data = train_data,
-  ntree = 500,        # broj stabala (optimalno za stabilnost)
-  mtry = 6,           # broj feature-a po stablu (optimalno nakon testova)
-  importance = TRUE   # omogućava grafikon važnosti feature-a
+  num.trees = 500,               # stabilnije od 300, a i dalje brzo
+  mtry = floor(sqrt(13)),        # preporučeno: sqrt(broj_feature-a)
+  min.node.size = 5,             # bolja generalizacija
+  sample.fraction = 0.75,        # bagging poboljšava performanse
+  importance = "impurity",
+  seed = 123
 )
 
-# Predikcija na test skupu
-rf_pred_log <- predict(rf_model, test_data)
+# Predikcije na test skupu
+rf_pred <- expm1(predict(rf_model, test_data)$predictions)
+true_price <- test_data$price
 
-# Vraćamo log vrednost nazad u originalnu skalu
-rf_pred <- expm1(rf_pred_log)
-
-# Metrički pokazatelji
+# Metrike
 rf_rmse <- sqrt(mean((rf_pred - true_price)^2))
 rf_mae  <- mean(abs(rf_pred - true_price))
-rf_R2   <- 1 - sum((rf_pred - true_price)^2) / 
+rf_r2   <- 1 - sum((rf_pred - true_price)^2) /
   sum((true_price - mean(true_price))^2)
 
 rf_rmse
 rf_mae
-rf_R2
+rf_r2
 
-# Grafikon značaja feature-a
-varImpPlot(rf_model)
+imp <- data.frame(
+  feature = names(rf_model$variable.importance),
+  importance = rf_model$variable.importance
+) %>% arrange(desc(importance))
+
+print(imp)
+
+# Bolji i lepši grafikon
+ggplot(imp, aes(x = reorder(feature, importance), y = importance)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(
+    title = "Random Forest Feature Importance",
+    x = "Feature",
+    y = "Importance"
+  ) +
+  theme_minimal(base_size = 14)
+
 
 # XGBOOST
 
