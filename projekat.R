@@ -1162,6 +1162,8 @@ datav3$cpu_generation = factor(
   ordered = TRUE
 )
 
+str(datav3)
+
 # PRIPREMA ZA MODELOVANJE 
 
 # LOG
