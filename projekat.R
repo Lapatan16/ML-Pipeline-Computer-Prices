@@ -1477,3 +1477,105 @@ ggplot(imp, aes(x = reorder(feature, importance), y = importance)) +
 
 # XGBOOST
 
+install.packages("xgboost")
+install.packages("Matrix")
+install.packages("fastDummies")
+
+library(xgboost)
+library(Matrix)
+library(fastDummies)
+library(dplyr)
+
+###############################################################
+# 1) Dummy encoding — koristi TVOJE postojeće train/test podatke
+###############################################################
+
+train_xgb <- fastDummies::dummy_cols(
+  train_data,
+  remove_first_dummy = TRUE,
+  remove_selected_columns = TRUE
+)
+
+test_xgb <- fastDummies::dummy_cols(
+  test_data,
+  remove_first_dummy = TRUE,
+  remove_selected_columns = TRUE
+)
+
+
+###############################################################
+# 2) Poravnanje kolona između train i test
+###############################################################
+
+# Koje kolone fale u test setu?
+missing_cols <- setdiff(colnames(train_xgb), colnames(test_xgb))
+
+# Dodaj ih u test (popuni nulama)
+for (col in missing_cols) {
+  test_xgb[[col]] <- 0
+}
+
+# Poravnaj redosled kolona
+test_xgb <- test_xgb[, colnames(train_xgb)]
+
+
+###############################################################
+# 3) Kreiranje matrica za XGBoost
+###############################################################
+
+train_matrix <- as.matrix(subset(train_xgb, select = -log_price))
+test_matrix  <- as.matrix(subset(test_xgb,  select = -log_price))
+
+dtrain <- xgb.DMatrix(data = train_matrix, label = train_xgb$log_price)
+dtest  <- xgb.DMatrix(data = test_matrix)
+
+
+###############################################################
+# 4) NAJBOLJI (OPTIMALNI) XGBOOST model
+###############################################################
+
+xgb_model <- xgb.train(
+  data = dtrain,
+  objective = "reg:squarederror",
+  nrounds = 800,         # optimalno za dataset ove veličine
+  eta = 0.05,            # stabilno učenje
+  max_depth = 7,         # hvata kompleksnost
+  subsample = 0.9,       # protiv overfittinga
+  colsample_bytree = 0.8,# koristi 80% feature-a po stablu
+  min_child_weight = 4,  # regularizacija
+  lambda = 2,            # L2 regularizacija
+  alpha = 0,             # L1 regularizacija
+  seed = 123
+)
+
+
+###############################################################
+# 5) Predikcije – vraćanje iz log skale u originalnu cenu
+###############################################################
+
+xgb_pred_log <- predict(xgb_model, dtest)
+xgb_pred <- expm1(xgb_pred_log)
+
+true_price <- test_data$price
+
+
+###############################################################
+# 6) Metrički rezultati
+###############################################################
+
+xgb_rmse <- sqrt(mean((xgb_pred - true_price)^2))
+xgb_mae  <- mean(abs(xgb_pred - true_price))
+xgb_r2   <- 1 - sum((xgb_pred - true_price)^2) /
+  sum((true_price - mean(true_price))^2)
+
+xgb_rmse
+xgb_mae
+xgb_r2
+
+
+###############################################################
+# 7) Feature importance (TOP 20)
+###############################################################
+
+importance <- xgb.importance(model = xgb_model)
+xgb.plot.importance(importance, top_n = 20)
