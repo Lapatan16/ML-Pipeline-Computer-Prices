@@ -1156,20 +1156,262 @@ ggplot(datav3, aes(x = cpu_generation, y = price)) +
 cor(datav3$cpu_generation, datav3$price) 
 # 0.7087494
 
-#datav3$cpu_generation = factor(
-#  datav3$cpu_generation,
-#  levels = sort(unique(datav3$cpu_generation)),
-#  ordered = TRUE
-#)
+datav3$cpu_generation = factor(
+  datav3$cpu_generation,
+  levels = sort(unique(datav3$cpu_generation)),
+  ordered = TRUE
+)
 
-##
+# PRIPREMA ZA MODELOVANJE 
+
+# LOG
+
+datav4 = datav3
+
+datav4$log_price <- log1p(datav4$price)
+
+
+ggplot(datav4, aes(x = log_price)) +
+  geom_histogram(bins = 50, fill = "#1f78b4", color = "black", alpha = 0.7) +
+  labs(
+    title = "Distribucija log-transformisane cene",
+    x = "log(1 + price)",
+    y = "Broj uređaja"
+  ) +
+  theme_minimal()
+datav4$log_price
+
+# TRAIN/TEST PODELA
+
+set.seed(123)  # da eksperimenti budu ponovljivi
+
+n = nrow(datav4)
+n
+train_index = sample(seq_len(n), size = 0.8 * n)
+train_index
+train_data = datav4[train_index, ]
+train_data
+test_data = datav4[-train_index, ]
+test_data
+
+str(datav4)
+
+nrow(train_data)
+nrow(test_data)
+
+summary(train_data$log_price)
+summary(test_data$log_price)
+
+# LINEARNA REGRESIJA
+
+# MODEL 1
+
+model_1 <- lm(log_price ~ cpu_tier, data=train_data)
+
+pred_1 <- expm1(predict(model_1, test_data))
+
+m1_rmse <- sqrt(mean((pred_1 - true_price)^2))
+m1_mae  <- mean(abs(pred_1 - true_price))
+m1_R2   <- 1 - sum((pred_1 - true_price)^2) / sum((true_price - mean(true_price))^2)
+
+m1_rmse; m1_mae; m1_R2
+
+# MODEL 2
+
+model_2 <- lm(log_price ~ cpu_tier + gpu_tier, data=train_data)
+
+pred_2 <- expm1(predict(model_2, test_data))
+
+m2_rmse <- sqrt(mean((pred_2 - true_price)^2))
+m2_mae  <- mean(abs(pred_2 - true_price))
+m2_R2   <- 1 - sum((pred_2 - true_price)^2) / sum((true_price - mean(true_price))^2)
+
+m2_rmse; m2_mae; m2_R2
+
+# MODEL 3
+
+model_3 <- lm(log_price ~ cpu_tier + gpu_tier + ram_gb, data=train_data)
+
+pred_3 <- expm1(predict(model_3, test_data))
+
+m3_rmse <- sqrt(mean((pred_3 - true_price)^2))
+m3_mae  <- mean(abs(pred_3 - true_price))
+m3_R2   <- 1 - sum((pred_3 - true_price)^2) / sum((true_price - mean(true_price))^2)
+
+m3_rmse; m3_mae; m3_R2
+
+# MODEL 4
+
+model_4 <- lm(log_price ~ cpu_tier + gpu_tier + ram_gb +
+                cpu_power_score, data=train_data)
+
+pred_4 <- expm1(predict(model_4, test_data))
+
+m4_rmse <- sqrt(mean((pred_4 - true_price)^2))
+m4_mae  <- mean(abs(pred_4 - true_price))
+m4_R2   <- 1 - sum((pred_4 - true_price)^2) / sum((true_price - mean(true_price))^2)
+
+
+m4_rmse; m4_mae; m4_R2
+
+# MODEL 5
+
+model_5 <- lm(log_price ~ cpu_tier + gpu_tier + ram_gb +
+                cpu_power_score + cgt_score, data=train_data)
+
+pred_5 <- expm1(predict(model_5, test_data))
+
+m5_rmse <- sqrt(mean((pred_5 - true_price)^2))
+m5_mae  <- mean(abs(pred_5 - true_price))
+m5_R2   <- 1 - sum((pred_5 - true_price)^2) / sum((true_price - mean(true_price))^2)
+
+
+m5_rmse; m5_mae; m5_R2
+
+# MODEL 6
+
+model_6 <- lm(log_price ~ cpu_tier + gpu_tier + ram_gb +
+                cpu_power_score + cgt_score + storage_gb,
+              data=train_data)
+
+pred_6 <- expm1(predict(model_6, test_data))
+
+m6_rmse <- sqrt(mean((pred_6 - true_price)^2))
+m6_mae  <- mean(abs(pred_6 - true_price))
+m6_R2   <- 1 - sum((pred_6 - true_price)^2) / sum((true_price - mean(true_price))^2)
 
 
 
+m6_rmse; m6_mae; m6_R2
+
+# MODEL 7
+
+model_7 <- lm(log_price ~ cpu_tier + gpu_tier + ram_gb +
+                cpu_power_score + cgt_score + storage_gb + brand,
+              data=train_data)
+
+pred_7 <- expm1(predict(model_7, test_data))
+
+m7_rmse <- sqrt(mean((pred_7 - true_price)^2))
+m7_mae  <- mean(abs(pred_7 - true_price))
+m7_R2   <- 1 - sum((pred_7 - true_price)^2) / sum((true_price - mean(true_price))^2)
 
 
+m7_rmse; m7_mae; m7_R2
 
 
+# MODEL 8
 
+model_8 <- lm(log_price ~ cpu_tier + gpu_tier + ram_gb +
+                cpu_power_score + cgt_score + storage_gb +
+                brand + os,
+              data=train_data)
 
+pred_8 <- expm1(predict(model_8, test_data))
+
+m8_rmse <- sqrt(mean((pred_8 - true_price)^2))
+m8_mae  <- mean(abs(pred_8 - true_price))
+m8_R2   <- 1 - sum((pred_8 - true_price)^2) / sum((true_price - mean(true_price))^2)
+
+m8_rmse; m8_mae; m8_R2
+
+# MODEL 9
+
+model_9 <- lm(log_price ~ cpu_tier + gpu_tier + ram_gb +
+                cpu_power_score + cgt_score + storage_gb +
+                brand + os + device_type,
+              data=train_data)
+
+pred_9 <- expm1(predict(model_9, test_data))
+
+m9_rmse <- sqrt(mean((pred_9 - true_price)^2))
+m9_mae  <- mean(abs(pred_9 - true_price))
+m9_R2   <- 1 - sum((pred_9 - true_price)^2) / sum((true_price - mean(true_price))^2)
+
+m9_rmse; m9_mae; m9_R2
+str(datav4)
+
+# MODEL 10
+
+model_10 <- lm(log_price ~ cpu_tier + gpu_tier + ram_gb +
+                cpu_power_score + cgt_score + storage_gb +
+                brand + os + device_type + cpu_generation,
+              data=train_data)
+
+pred_10 <- expm1(predict(model_10, test_data))
+
+m10_rmse <- sqrt(mean((pred_10 - true_price)^2))
+m10_mae  <- mean(abs(pred_10 - true_price))
+m10_R2   <- 1 - sum((pred_10 - true_price)^2) / sum((true_price - mean(true_price))^2)
+
+m10_rmse; m10_mae; m10_R2
+str(datav4)
+
+# MODEL 11
+
+model_11 <- lm(log_price ~ cpu_tier + gpu_tier + ram_gb +
+                cpu_power_score + cgt_score + storage_gb +
+                brand + os + device_type + cpu_generation + vram_gb,
+              data=train_data)
+
+pred_11 <- expm1(predict(model_11, test_data))
+
+m11_rmse <- sqrt(mean((pred_11 - true_price)^2))
+m11_mae  <- mean(abs(pred_11 - true_price))
+m11_R2   <- 1 - sum((pred_11 - true_price)^2) / sum((true_price - mean(true_price))^2)
+
+m11_rmse; m11_mae; m11_R2
+str(datav4)
+
+# MODEL 12
+
+model_12 <- lm(log_price ~ cpu_tier + gpu_tier + ram_gb +
+                cpu_power_score + cgt_score + storage_gb +
+                brand + os + device_type + cpu_generation + vram_gb + release_year,
+              data=train_data)
+
+pred_12 <- expm1(predict(model_12, test_data))
+
+m12_rmse <- sqrt(mean((pred_12 - true_price)^2))
+m12_mae  <- mean(abs(pred_12 - true_price))
+m12_R2   <- 1 - sum((pred_12 - true_price)^2) / sum((true_price - mean(true_price))^2)
+
+m12_rmse; m12_mae; m12_R2
+str(datav4)
+
+# RANDOM FOREST
+
+library(randomForest)
+
+# Najbolji Random Forest model za ovaj dataset
+rf_model <- randomForest(
+  log_price ~ cpu_tier + gpu_tier + ram_gb +
+    cpu_power_score + cgt_score + storage_gb +
+    brand + os + device_type,
+  data = train_data,
+  ntree = 500,        # broj stabala (optimalno za stabilnost)
+  mtry = 6,           # broj feature-a po stablu (optimalno nakon testova)
+  importance = TRUE   # omogućava grafikon važnosti feature-a
+)
+
+# Predikcija na test skupu
+rf_pred_log <- predict(rf_model, test_data)
+
+# Vraćamo log vrednost nazad u originalnu skalu
+rf_pred <- expm1(rf_pred_log)
+
+# Metrički pokazatelji
+rf_rmse <- sqrt(mean((rf_pred - true_price)^2))
+rf_mae  <- mean(abs(rf_pred - true_price))
+rf_R2   <- 1 - sum((rf_pred - true_price)^2) / 
+  sum((true_price - mean(true_price))^2)
+
+rf_rmse
+rf_mae
+rf_R2
+
+# Grafikon značaja feature-a
+varImpPlot(rf_model)
+
+# XGBOOST
 
