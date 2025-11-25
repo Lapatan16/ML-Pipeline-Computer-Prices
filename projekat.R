@@ -1172,7 +1172,6 @@ datav4 = datav3
 
 datav4$log_price <- log1p(datav4$price)
 
-
 ggplot(datav4, aes(x = log_price)) +
   geom_histogram(bins = 50, fill = "#1f78b4", color = "black", alpha = 0.7) +
   labs(
@@ -1181,6 +1180,7 @@ ggplot(datav4, aes(x = log_price)) +
     y = "Broj uređaja"
   ) +
   theme_minimal()
+
 datav4$log_price
 
 # TRAIN/TEST PODELA
