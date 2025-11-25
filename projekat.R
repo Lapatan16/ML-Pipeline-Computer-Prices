@@ -1578,3 +1578,55 @@ xgb_r2
 
 importance <- xgb.importance(model = xgb_model)
 xgb.plot.importance(importance, top_n = 20)
+
+####
+## XGBOOST - LAPI
+####
+
+library(xgboost)
+
+# drugi pokusaj
+
+numeric_cols <- names(datav4)[sapply(datav4, is.numeric)]
+numeric_cols <- setdiff(numeric_cols, c("price", "log_price"))
+
+# Create matrices
+train_matrix <- as.matrix(train_data[, numeric_cols])
+test_matrix  <- as.matrix(test_data[, numeric_cols])
+
+# Labels (log transformed target)
+train_label <- train_data$log_price
+test_label  <- test_data$price    # original scale
+
+# -------------------------------------------------------
+# 3. Train xgboost
+# -------------------------------------------------------
+xgb_model <- xgboost(
+  data = train_matrix,
+  label = train_label,
+  nrounds = 100,
+  objective = "reg:squarederror",
+  tree_method = "hist",   # faster for big datasets
+  verbose = 0
+)
+
+# -------------------------------------------------------
+# 4. Predict (returning to original scale)
+# -------------------------------------------------------
+pred_log   <- predict(xgb_model, newdata = test_matrix)
+pred_price <- expm1(pred_log)
+
+# -------------------------------------------------------
+# 5. Manual RMSE & MAE
+# -------------------------------------------------------
+rmse <- function(y, p) sqrt(mean((y - p)^2))
+mae  <- function(y, p) mean(abs(y - p))
+
+rmse_result <- rmse(test_label, pred_price)
+mae_result  <- mae(test_label, pred_price)
+
+rmse_result
+mae_result
+
+
+
