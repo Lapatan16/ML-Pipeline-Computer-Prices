@@ -1378,53 +1378,12 @@ m12_R2   <- 1 - sum((pred_12 - true_price)^2) / sum((true_price - mean(true_pric
 m12_rmse; m12_mae; m12_R2
 str(datav4)
 
-# RANDOM FOREST
-
-# install.packages("ranger")
-# library(ranger)
-# 
-# rf_model <- ranger(log_price ~ cpu_tier + gpu_tier + ram_gb +
-#                      cpu_power_score + cgt_score + storage_gb +
-#                      brand + os + device_type + cpu_generation + vram_gb + release_year,
-#                    data=train_data,
-#   num.trees = 300,              # dovoljno za stabilan model, ali i brzo
-#   mtry = 6,                     # optimalno prema prethodnim testovima
-#   importance = "impurity",      # omogućava feature importance
-#   seed = 123
-# )
-# 
-# rf_pred <- expm1(predict(rf_model, test_data)$predictions)
-# 
-# true_price <- test_data$price
-# 
-# rf_rmse <- sqrt(mean((rf_pred - true_price)^2))
-# rf_mae  <- mean(abs(rf_pred - true_price))
-# rf_r2   <- 1 - sum((rf_pred - true_price)^2) / sum((true_price - mean(true_price))^2)
-# 
-# rf_rmse
-# rf_mae
-# rf_r2
-# 
-# imp <- data.frame(
-#   feature = names(rf_model$variable.importance),
-#   importance = rf_model$variable.importance
-# )
-
-# library(ggplot2)
-# 
-# ggplot(imp, aes(x = reorder(feature, importance), y = importance)) +
-#   geom_col(fill = "dodgerblue") +
-#   coord_flip() +
-#   labs(
-#     title = "Random Forest – Feature Importance (ranger)",
-#     x = "Feature",
-#     y = "Importance"
-#   )
+####
+## Random Forest
+####
 
 install.packages("ranger")
 library(ranger)
-library(dplyr)
-library(ggplot2)
 
 # Finalni i optimizovani Random Forest
 rf_model <- ranger(
@@ -1474,118 +1433,12 @@ ggplot(imp, aes(x = reorder(feature, importance), y = importance)) +
   theme_minimal(base_size = 14)
 
 
-# XGBOOST
+####
+## XGBOOST
+####
 
 install.packages("xgboost")
-install.packages("Matrix")
-install.packages("fastDummies")
-
 library(xgboost)
-library(Matrix)
-library(fastDummies)
-library(dplyr)
-
-###############################################################
-# 1) Dummy encoding — koristi TVOJE postojeće train/test podatke
-###############################################################
-
-train_xgb <- fastDummies::dummy_cols(
-  train_data,
-  remove_first_dummy = TRUE,
-  remove_selected_columns = TRUE
-)
-
-test_xgb <- fastDummies::dummy_cols(
-  test_data,
-  remove_first_dummy = TRUE,
-  remove_selected_columns = TRUE
-)
-
-
-###############################################################
-# 2) Poravnanje kolona između train i test
-###############################################################
-
-# Koje kolone fale u test setu?
-missing_cols <- setdiff(colnames(train_xgb), colnames(test_xgb))
-
-# Dodaj ih u test (popuni nulama)
-for (col in missing_cols) {
-  test_xgb[[col]] <- 0
-}
-
-# Poravnaj redosled kolona
-test_xgb <- test_xgb[, colnames(train_xgb)]
-
-
-###############################################################
-# 3) Kreiranje matrica za XGBoost
-###############################################################
-
-train_matrix <- as.matrix(subset(train_xgb, select = -log_price))
-test_matrix  <- as.matrix(subset(test_xgb,  select = -log_price))
-
-dtrain <- xgb.DMatrix(data = train_matrix, label = train_xgb$log_price)
-dtest  <- xgb.DMatrix(data = test_matrix)
-
-
-###############################################################
-# 4) NAJBOLJI (OPTIMALNI) XGBOOST model
-###############################################################
-
-xgb_model <- xgb.train(
-  data = dtrain,
-  objective = "reg:squarederror",
-  nrounds = 800,         # optimalno za dataset ove veličine
-  eta = 0.05,            # stabilno učenje
-  max_depth = 7,         # hvata kompleksnost
-  subsample = 0.9,       # protiv overfittinga
-  colsample_bytree = 0.8,# koristi 80% feature-a po stablu
-  min_child_weight = 4,  # regularizacija
-  lambda = 2,            # L2 regularizacija
-  alpha = 0,             # L1 regularizacija
-  seed = 123
-)
-
-
-###############################################################
-# 5) Predikcije – vraćanje iz log skale u originalnu cenu
-###############################################################
-
-xgb_pred_log <- predict(xgb_model, dtest)
-xgb_pred <- expm1(xgb_pred_log)
-
-true_price <- test_data$price
-
-
-###############################################################
-# 6) Metrički rezultati
-###############################################################
-
-xgb_rmse <- sqrt(mean((xgb_pred - true_price)^2))
-xgb_mae  <- mean(abs(xgb_pred - true_price))
-xgb_r2   <- 1 - sum((xgb_pred - true_price)^2) /
-  sum((true_price - mean(true_price))^2)
-
-xgb_rmse
-xgb_mae
-xgb_r2
-
-
-###############################################################
-# 7) Feature importance (TOP 20)
-###############################################################
-
-importance <- xgb.importance(model = xgb_model)
-xgb.plot.importance(importance, top_n = 20)
-
-####
-## XGBOOST - LAPI
-####
-
-library(xgboost)
-
-# drugi pokusaj
 
 numeric_cols <- names(datav4)[sapply(datav4, is.numeric)]
 numeric_cols <- setdiff(numeric_cols, c("price", "log_price"))
@@ -1613,20 +1466,51 @@ xgb_model <- xgboost(
 # -------------------------------------------------------
 # 4. Predict (returning to original scale)
 # -------------------------------------------------------
-pred_log   <- predict(xgb_model, newdata = test_matrix)
-pred_price <- expm1(pred_log)
+# Make predictions on test data (log scale)
+xgb_pred_log <- predict(xgb_model, newdata = test_matrix)
+
+# Convert back to original scale
+xgb_pred <- expm1(xgb_pred_log)
+
+true_price <- test_data$price
+
+# Metrics (same formulas as RF)
+xgb_rmse <- sqrt(mean((xgb_pred - true_price)^2))
+xgb_mae  <- mean(abs(xgb_pred - true_price))
+xgb_r2   <- 1 - sum((xgb_pred - true_price)^2) /
+  sum((true_price - mean(true_price))^2)
+
+xgb_rmse
+xgb_mae
+xgb_r2
+
+# feature importance
+
+xgb_imp_raw <- xgb.importance(
+  model = xgb_model,
+  feature_names = colnames(train_matrix)
+)
+
+# xgb.importance returns: Feature, Gain, Cover, Frequency
+# We'll use Gain (most common metric)
+
+xgb_imp <- xgb_imp_raw %>%
+  select(feature = Feature, importance = Gain) %>%
+  arrange(desc(importance))
+
+print(xgb_imp)
 
 # -------------------------------------------------------
-# 5. Manual RMSE & MAE
+# 2. Plot — same look & feel as RF
 # -------------------------------------------------------
-rmse <- function(y, p) sqrt(mean((y - p)^2))
-mae  <- function(y, p) mean(abs(y - p))
-
-rmse_result <- rmse(test_label, pred_price)
-mae_result  <- mae(test_label, pred_price)
-
-rmse_result
-mae_result
-
+ggplot(xgb_imp, aes(x = reorder(feature, importance), y = importance)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(
+    title = "XGBoost Feature Importance (Gain)",
+    x = "Feature",
+    y = "Importance"
+  ) +
+  theme_minimal(base_size = 14)
 
 
