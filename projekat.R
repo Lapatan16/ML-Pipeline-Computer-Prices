@@ -1397,25 +1397,28 @@ install.packages("ranger")
 library(ranger)
 
 # Finalni i optimizovani Random Forest
+
 rf_model <- ranger(
   log_price ~ cpu_tier + gpu_tier + ram_gb +
     cpu_power_score + cgt_score + storage_gb +
     brand + os + device_type + cpu_generation +
     vram_gb + release_year + battery_wh + warranty_months,
   data = train_data,
-  num.trees = 500,               # stabilnije od 300, a i dalje brzo
-  mtry = floor(sqrt(13)),        # preporučeno: sqrt(broj_feature-a)
-  min.node.size = 5,             # bolja generalizacija
-  sample.fraction = 0.75,        # bagging poboljšava performanse
+  num.trees = 500,               
+  mtry = floor(sqrt(13)),        
+  min.node.size = 5,             
+  sample.fraction = 0.75,        
   importance = "impurity",
   seed = 123
 )
 
 # Predikcije na test skupu
+
 rf_pred <- expm1(predict(rf_model, test_data)$predictions)
 true_price <- test_data$price
 
 # Metrike
+
 rf_rmse <- sqrt(mean((rf_pred - true_price)^2))
 rf_mae  <- mean(abs(rf_pred - true_price))
 rf_r2   <- 1 - sum((rf_pred - true_price)^2) /
@@ -1432,7 +1435,8 @@ imp <- data.frame(
 
 print(imp)
 
-# Bolji i lepši grafikon
+# Grafik
+
 ggplot(imp, aes(x = reorder(feature, importance), y = importance)) +
   geom_col(fill = "steelblue") +
   coord_flip() +
@@ -1443,7 +1447,6 @@ ggplot(imp, aes(x = reorder(feature, importance), y = importance)) +
   ) +
   theme_minimal(base_size = 14)
 
-
 ####
 ## XGBOOST
 ####
@@ -1451,42 +1454,36 @@ ggplot(imp, aes(x = reorder(feature, importance), y = importance)) +
 install.packages("xgboost")
 library(xgboost)
 
+# priprema
+
 numeric_cols <- names(datav4)[sapply(datav4, is.numeric)]
 numeric_cols <- setdiff(numeric_cols, c("price", "log_price"))
 
-# Create matrices
 train_matrix <- as.matrix(train_data[, numeric_cols])
 test_matrix  <- as.matrix(test_data[, numeric_cols])
 
-# Labels (log transformed target)
 train_label <- train_data$log_price
-test_label  <- test_data$price    # original scale
+test_label  <- test_data$price    
 
-# -------------------------------------------------------
-# 3. Train xgboost
-# -------------------------------------------------------
+# treniranje
 
 xgb_model <- xgboost( 
   data = train_matrix,
   label = train_label,
   nrounds = 100,
   objective = "reg:squarederror",
-  tree_method = "hist",   # faster for big datasets
+  tree_method = "hist",   
   verbose = 0
 )
 
-# -------------------------------------------------------
-# 4. Predict (returning to original scale)
-# -------------------------------------------------------
-# Make predictions on test data (log scale)
+# predikcija
+
 xgb_pred_log <- predict(xgb_model, newdata = test_matrix)
 
-# Convert back to original scale
 xgb_pred <- expm1(xgb_pred_log)
 
 true_price <- test_data$price
 
-# Metrics (same formulas as RF)
 xgb_rmse <- sqrt(mean((xgb_pred - true_price)^2))
 xgb_mae  <- mean(abs(xgb_pred - true_price))
 xgb_r2   <- 1 - sum((xgb_pred - true_price)^2) /
@@ -1503,18 +1500,14 @@ xgb_imp_raw <- xgb.importance(
   feature_names = colnames(train_matrix)
 )
 
-# xgb.importance returns: Feature, Gain, Cover, Frequency
-# We'll use Gain (most common metric)
-
 xgb_imp <- xgb_imp_raw %>%
   select(feature = Feature, importance = Gain) %>%
   arrange(desc(importance))
 
 print(xgb_imp)
 
-# -------------------------------------------------------
-# 2. Plot — same look & feel as RF
-# -------------------------------------------------------
+# grafik
+
 ggplot(xgb_imp, aes(x = reorder(feature, importance), y = importance)) +
   geom_col(fill = "steelblue") +
   coord_flip() +
