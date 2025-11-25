@@ -1454,7 +1454,8 @@ test_label  <- test_data$price    # original scale
 # -------------------------------------------------------
 # 3. Train xgboost
 # -------------------------------------------------------
-xgb_model <- xgboost(
+
+xgb_model <- xgboost( 
   data = train_matrix,
   label = train_label,
   nrounds = 100,
