@@ -1234,9 +1234,10 @@ pred_2 <- expm1(predict(model_2, test_data))
 
 m2_rmse <- sqrt(mean((pred_2 - true_price)^2))
 m2_mae  <- mean(abs(pred_2 - true_price))
-m2_R2   <- 1 - sum((pred_2 - true_price)^2) / sum((true_price - mean(true_price))^2)
 
-m2_rmse; m2_mae; m2_R2
+m2_rmse; m2_mae
+
+summary(model_2)
 
 # MODEL 3
 
@@ -1246,9 +1247,10 @@ pred_3 <- expm1(predict(model_3, test_data))
 
 m3_rmse <- sqrt(mean((pred_3 - true_price)^2))
 m3_mae  <- mean(abs(pred_3 - true_price))
-m3_R2   <- 1 - sum((pred_3 - true_price)^2) / sum((true_price - mean(true_price))^2)
 
-m3_rmse; m3_mae; m3_R2
+m3_rmse; m3_mae
+
+summary(model_3)
 
 # MODEL 4
 
@@ -1259,10 +1261,10 @@ pred_4 <- expm1(predict(model_4, test_data))
 
 m4_rmse <- sqrt(mean((pred_4 - true_price)^2))
 m4_mae  <- mean(abs(pred_4 - true_price))
-m4_R2   <- 1 - sum((pred_4 - true_price)^2) / sum((true_price - mean(true_price))^2)
 
+m4_rmse; m4_mae
 
-m4_rmse; m4_mae; m4_R2
+summary(model_4)
 
 # MODEL 5
 
@@ -1273,10 +1275,10 @@ pred_5 <- expm1(predict(model_5, test_data))
 
 m5_rmse <- sqrt(mean((pred_5 - true_price)^2))
 m5_mae  <- mean(abs(pred_5 - true_price))
-m5_R2   <- 1 - sum((pred_5 - true_price)^2) / sum((true_price - mean(true_price))^2)
 
+m5_rmse; m5_mae
 
-m5_rmse; m5_mae; m5_R2
+summary(model_5)
 
 # MODEL 6
 
@@ -1288,11 +1290,10 @@ pred_6 <- expm1(predict(model_6, test_data))
 
 m6_rmse <- sqrt(mean((pred_6 - true_price)^2))
 m6_mae  <- mean(abs(pred_6 - true_price))
-m6_R2   <- 1 - sum((pred_6 - true_price)^2) / sum((true_price - mean(true_price))^2)
 
+m6_rmse; m6_mae
 
-
-m6_rmse; m6_mae; m6_R2
+summary(model_6)
 
 # MODEL 7
 
@@ -1304,11 +1305,10 @@ pred_7 <- expm1(predict(model_7, test_data))
 
 m7_rmse <- sqrt(mean((pred_7 - true_price)^2))
 m7_mae  <- mean(abs(pred_7 - true_price))
-m7_R2   <- 1 - sum((pred_7 - true_price)^2) / sum((true_price - mean(true_price))^2)
 
+m7_rmse; m7_mae
 
-m7_rmse; m7_mae; m7_R2
-
+summary(model_7)
 
 # MODEL 8
 
@@ -1321,9 +1321,10 @@ pred_8 <- expm1(predict(model_8, test_data))
 
 m8_rmse <- sqrt(mean((pred_8 - true_price)^2))
 m8_mae  <- mean(abs(pred_8 - true_price))
-m8_R2   <- 1 - sum((pred_8 - true_price)^2) / sum((true_price - mean(true_price))^2)
 
-m8_rmse; m8_mae; m8_R2
+m8_rmse; m8_mae
+
+summary(model_8)
 
 # MODEL 9
 
@@ -1336,10 +1337,10 @@ pred_9 <- expm1(predict(model_9, test_data))
 
 m9_rmse <- sqrt(mean((pred_9 - true_price)^2))
 m9_mae  <- mean(abs(pred_9 - true_price))
-m9_R2   <- 1 - sum((pred_9 - true_price)^2) / sum((true_price - mean(true_price))^2)
 
-m9_rmse; m9_mae; m9_R2
-str(datav4)
+m9_rmse; m9_mae
+
+summary(model_9)
 
 # MODEL 10
 
@@ -1352,10 +1353,10 @@ pred_10 <- expm1(predict(model_10, test_data))
 
 m10_rmse <- sqrt(mean((pred_10 - true_price)^2))
 m10_mae  <- mean(abs(pred_10 - true_price))
-m10_R2   <- 1 - sum((pred_10 - true_price)^2) / sum((true_price - mean(true_price))^2)
 
-m10_rmse; m10_mae; m10_R2
-str(datav4)
+m10_rmse; m10_mae
+
+summary(model_10)
 
 # MODEL 11
 
@@ -1368,10 +1369,10 @@ pred_11 <- expm1(predict(model_11, test_data))
 
 m11_rmse <- sqrt(mean((pred_11 - true_price)^2))
 m11_mae  <- mean(abs(pred_11 - true_price))
-m11_R2   <- 1 - sum((pred_11 - true_price)^2) / sum((true_price - mean(true_price))^2)
 
-m11_rmse; m11_mae; m11_R2
-str(datav4)
+m11_rmse; m11_mae
+
+summary(model_11)
 
 # MODEL 12
 
@@ -1384,10 +1385,10 @@ pred_12 <- expm1(predict(model_12, test_data))
 
 m12_rmse <- sqrt(mean((pred_12 - true_price)^2))
 m12_mae  <- mean(abs(pred_12 - true_price))
-m12_R2   <- 1 - sum((pred_12 - true_price)^2) / sum((true_price - mean(true_price))^2)
 
-m12_rmse; m12_mae; m12_R2
-str(datav4)
+m12_rmse; m12_mae
+
+summary(model_12)
 
 ####
 ## Random Forest
