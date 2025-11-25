@@ -1397,7 +1397,7 @@ summary(model_12)
 install.packages("ranger")
 library(ranger)
 
-# Finalni i optimizovani Random Forest
+# Treniranje modela
 
 rf_model <- ranger(
   log_price ~ cpu_tier + gpu_tier + ram_gb +
@@ -1429,14 +1429,16 @@ rf_rmse
 rf_mae
 rf_r2
 
+# Feature importance
+
+summary(rf_model)
+
 imp <- data.frame(
   feature = names(rf_model$variable.importance),
   importance = rf_model$variable.importance
 ) %>% arrange(desc(importance))
 
 print(imp)
-
-# Grafik
 
 ggplot(imp, aes(x = reorder(feature, importance), y = importance)) +
   geom_col(fill = "steelblue") +
