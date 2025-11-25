@@ -1166,11 +1166,13 @@ str(datav3)
 
 # PRIPREMA ZA MODELOVANJE 
 
-# LOG
-
 datav4 = datav3
+# pravimo datav4 što će biti i naš finalni skup podataka
+
+# LOGARITAMSKA TRANSFORMACIJA
 
 datav4$log_price <- log1p(datav4$price)
+# LAPI POJASNI ZASTO SMO OVO URADILI  
 
 ggplot(datav4, aes(x = log_price)) +
   geom_histogram(bins = 50, fill = "#1f78b4", color = "black", alpha = 0.7) +
@@ -1180,6 +1182,7 @@ ggplot(datav4, aes(x = log_price)) +
     y = "Broj uređaja"
   ) +
   theme_minimal()
+# grafik iznad pokazuje raspodelu cene nakon logaritamske transformacije, nije više iskrivljen i ekstremno veliki podaci nemaju prevelik uticaj na cenu
 
 datav4$log_price
 
@@ -1192,15 +1195,22 @@ n = nrow(datav4)
 train_index = sample(seq_len(n), size = 0.8 * n)
 train_data = datav4[train_index, ]
 test_data = datav4[-train_index, ]
-
-str(datav4)
+# LAPI POJASNI UKRATKO OVIH 5 REDOVA IZNAD
 
 nrow(train_data)
+# train podaci su 59376 redova
+
 nrow(test_data)
+# test podaci su 14845
 
 summary(train_data$log_price)
 summary(test_data$log_price)
-true_price <- test_data$price
+# raspodela cene nakon logaritamske transformacije u train i u test skupu je podjednaka
+# trenira model po jednom rasponu, potrebno da je i test podaci imaju sličan raspon
+
+true_price = test_data$price
+# u ovoj promenljivoj čuvamo stvarno cenu uređaja iz testnog skupa
+
 # LINEARNA REGRESIJA
 
 # MODEL 1
@@ -1211,9 +1221,10 @@ pred_1 <- expm1(predict(model_1, test_data))
 
 m1_rmse <- sqrt(mean((pred_1 - true_price)^2))
 m1_mae  <- mean(abs(pred_1 - true_price))
-m1_R2   <- 1 - sum((pred_1 - true_price)^2) / sum((true_price - mean(true_price))^2)
 
-m1_rmse; m1_mae; m1_R2
+m1_rmse; m1_mae
+
+summary(model_1)
 
 # MODEL 2
 
