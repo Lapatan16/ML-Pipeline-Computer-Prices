@@ -1143,7 +1143,7 @@ x = model.matrix(
 
 y = train_data$log_price
 
-lasso_model <- cv.glmnet(
+lasso_model = cv.glmnet(
   x, y,
   alpha = 1,      
   nfolds = 10,
@@ -1152,39 +1152,39 @@ lasso_model <- cv.glmnet(
 
 lasso_model$lambda.min
 
-x_test <- model.matrix(
+x_test = model.matrix(
   log_price ~ cpu_tier + gpu_tier + ram_gb +
     cpu_power_score + cgt_score + storage_gb +
     brand + os + device_type + cpu_generation + vram_gb + release_year,
   data = test_data
 )[, -1]
 
-lasso_pred <- predict(lasso_model, newx = x_test, s = "lambda.min")
-lasso_pred_real <- expm1(lasso_pred)
+lasso_pred = predict(lasso_model, newx = x_test, s = "lambda.min")
+lasso_pred_real = expm1(lasso_pred)
 
-lasso_rmse <- sqrt(mean((lasso_pred_real - test_data$price)^2))
-lasso_mae  <- mean(abs(lasso_pred_real - test_data$price))
-lasso_r2   <- 1 - sum((lasso_pred_real - test_data$price)^2) /
+lasso_rmse = sqrt(mean((lasso_pred_real - test_data$price)^2))
+lasso_mae  = mean(abs(lasso_pred_real - test_data$price))
+lasso_r2   = 1 - sum((lasso_pred_real - test_data$price)^2) /
   sum((test_data$price - mean(test_data$price))^2)
 
 lasso_rmse; lasso_mae; lasso_r2
 
-lasso_coef <- coef(lasso_model, s = "lambda.min")
+lasso_coef = coef(lasso_model, s = "lambda.min")
 
 # Pretvaranje u data.frame
-lasso_imp <- data.frame(
+lasso_imp = data.frame(
   feature = rownames(lasso_coef),
   coefficient = as.numeric(lasso_coef)
 )
 
 # Uklanjamo intercept (nije deo feature importance)
-lasso_imp <- lasso_imp %>% filter(feature != "(Intercept)")
+lasso_imp = lasso_imp %>% filter(feature != "(Intercept)")
 
 # Apsolutna vrednost koeficijenata = značajnost
-lasso_imp$importance <- abs(lasso_imp$coefficient)
+lasso_imp$importance = abs(lasso_imp$coefficient)
 
 # Sortiranje opadajuće
-lasso_imp <- lasso_imp %>% arrange(desc(importance))
+lasso_imp = lasso_imp %>% arrange(desc(importance))
 
 ggplot(lasso_imp, aes(x = reorder(feature, importance), y = importance)) +
   geom_col(fill = "darkred") +
