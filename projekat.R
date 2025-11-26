@@ -1127,6 +1127,26 @@ cor(datav3$cgt_score, datav3$price)
 
 ## generacije procesora
 
+# Kada smo uklanjali višak kolone većinom smo sve kolone tipa „model“ uklonili jer postoji 
+# mnogo modela i nemoguće je izvući znanje iz njih. Međutim, ostavili smo jednu kolone te vrste, 
+# a to je cpu_model. Ostavili smo ovu kolonu iz razloga što uz malo kreativnosti možemo izvući 
+# generaciju svakog procesora i napraviti neku vrstu tier-a tj. ranga tih procesora na osnovu 
+# svoje generacije.
+
+# Imamo tri proizvođača procesora, a to su Intell, AMD i Apple. Kod Intell-a se generacije 
+# označavaju sa „i“ nakon čega sledi broj koji označava generaciju, npr. i3, i5, i7, i9. AMD
+# označava svoje generacije samo jednim brojem, kao što su 3, 5, 7, 9. Apple za generaciju 
+# koristi oznaku M, i onda broj iz intervala od 1 do 3, nakon toga ima dodatnu oznaku Pro ili
+# Max, koji bliže označavaju taj model i svoje sposobnosti.
+
+# Kako su tri različita proizvođača, nije baš moguće direktno uporediti generacije, ali je 
+# moguće to uraditi približno. U suštini, Intell i AMD koriste sličnu oznaku za generaciju i
+# moguće ih je lako uporediti. Intell i5 je po performansama sličan AMD Ryzen 5, Intell i3 je
+# sličan AMD Ryzen 3, i tako dalje. Budući da Apple drugačije označava generacije svojih 
+# procesora, moraćemo malo kreativnije upoređenje da napravimo. Pretpostavićemo da M1 = i3 = 3, 
+# M2 = i5 = 5, M3 = i7 = 7 i procesori sa oznakama Pro ili Max su jednake i9 i 9.
+
+
 datav3 <- datav3 %>% mutate(cpu_generation = case_when( 
     str_detect(cpu_model, regex("i9|Ryzen 9|Pro|Max", ignore_case = FALSE)) ~ 4,
     str_detect(cpu_model, regex("i3|Ryzen 3|M1", ignore_case = FALSE)) ~ 1, 
@@ -1144,6 +1164,13 @@ ggplot(datav3, aes(x = cpu_generation)) +
   ) +
   theme_minimal()
 
+# Na grafiku iznad možemo videti raspodelu generacije procesora. Na osnovu raspodele 
+# zaključujemo da je naša pretpostavka bila pun pogodak. Vidimo da generacije 2 i 3 ima 
+# najviše, što prati praksu, gde ljudi najčešće kupuju uređaje sa procesorima iz srednjeg 
+# nivoa. To su npr. Intell i5 i u malo ređim slučajevima Intell i7. Generacije 1 i 4 dosta 
+# manje ljudi kupuje, što je i potpuno logično. Procesor kao što je Intel i3 je dosta slab i 
+# polako gubi svoju upotrebnu, dok procesor Intell i9 je ipak previše skup za većinu ljudi.
+
 ggplot(datav3, aes(x = cpu_generation, y = price)) +
   geom_point(alpha = 0.3, color = "darkred") +
   labs(
@@ -1153,8 +1180,23 @@ ggplot(datav3, aes(x = cpu_generation, y = price)) +
   ) +
   theme_minimal()
 
+# Sa Scatter dijagrama iznad možemo dodatno potvrditi da smo pravilnu pretpostavku napravili 
+# pri inženjeringu kolone o generaciji procesora. Na osnovu donjih granica vidimo da generacije 
+# prate pozitivni trend, gde viša generacija ima skuplju cenu. Ono što takođe možemo primetiti 
+# je da generacije 2 i 3 imaju nekoliko netipičnih vrednosti, što nam može govoriti o tome da je 
+# možda bio malo precizniji način da razdvojimo podatke ili nam takođe može govoriti da cena u 
+# tim rangovima zavisi dosta više od ostalih komponenti.
+
 cor(datav3$cpu_generation, datav3$price) 
 # 0.7087494
+
+# Vidimo da je korelacija između, novokreiranog prediktora, cpu_generation i cene 0.71. To 
+# je odlična korelacija i označava nam da bi generacija procesora bila dobar prediktor za 
+# cenu uređaja.
+
+# Na osnovu svih iscrtanih grafika i korelacije, zaključujemo da nam je cpu_generation dovoljno 
+# dobar prediktor i da ćemo ga iz tog razloga zadržati za fazu treniranja i testiranja modela 
+# mašinskog učenja.
 
 datav3$cpu_generation = factor(
   datav3$cpu_generation,
@@ -1162,7 +1204,13 @@ datav3$cpu_generation = factor(
   ordered = TRUE
 )
 
+# Poslednje što treba uraditi je prebaciti generaciju procesora u kategorijsku promenljivu. 
+# Vidimo da ima četiri nivoa (1, 2, 3, 4), tako da ćemo napraviti ordinalnu kategorijsku 
+# promenljivu, gde će 1 biti najniža vrednost i 4 biti najviša.
+
 str(datav3)
+
+# Na slici iznad možemo videti kako izgleda finalna struktura našeg skupa podataka.
 
 # PRIPREMA ZA MODELOVANJE 
 
@@ -1172,7 +1220,6 @@ datav4 = datav3
 # LOGARITAMSKA TRANSFORMACIJA
 
 datav4$log_price <- log1p(datav4$price)
-# LAPI POJASNI ZASTO SMO OVO URADILI  
 
 ggplot(datav4, aes(x = log_price)) +
   geom_histogram(bins = 50, fill = "#1f78b4", color = "black", alpha = 0.7) +
@@ -1182,7 +1229,12 @@ ggplot(datav4, aes(x = log_price)) +
     y = "Broj uređaja"
   ) +
   theme_minimal()
-# grafik iznad pokazuje raspodelu cene nakon logaritamske transformacije, nije više iskrivljen i ekstremno veliki podaci nemaju prevelik uticaj na cenu
+
+# Na grafiku iznad se sada može videti kako distribucija cene uređaja izgleda. Ako to 
+# uporedimo sa slikom raspodele cene od pre, možemo primetiti da sada ekstremno male i ekstremno 
+# veliki podaci imaju mnogo manji uticaj na njenu raspodelu. Takođe, možemo videti da grafik 
+# više nije „povučen na desnu stranu“ tj. right skewed, već je vrednost koje ima najviše 
+# postavljena u centru i sve ostale su oko nje raspoređene.
 
 datav4$log_price
 
@@ -1195,7 +1247,12 @@ n = nrow(datav4)
 train_index = sample(seq_len(n), size = 0.8 * n)
 train_data = datav4[train_index, ]
 test_data = datav4[-train_index, ]
-# LAPI POJASNI UKRATKO OVIH 5 REDOVA IZNAD
+
+# Sledeće što je potrebno uraditi, je podeliti skup na trening i test skup. Skup ćemo 
+# podeliti po standardnoj raspodeli: 80:20, gde će 80% biti skup za trening podataka, dok će 
+# 20% skupa biti deo za testiranje, tj. predikciju. Kako bi podela bila najrealnija, postavićemo 
+# određeni seed, u ovom slučaju je to 123. Nakon toga ćemo samo podeliti indekse na osnovu tog 
+# seed-a i uspomoć tih indeksa napraviti trening i test skup.
 
 nrow(train_data)
 # train podaci su 59376 redova
@@ -1397,6 +1454,15 @@ summary(model_12)
 install.packages("ranger")
 library(ranger)
 
+# Sledeći model, koji ćemo koristiti je Random Forest. Random forest je model mašinskog učenja, 
+# koji radi pomoću stabla odlučivanja. On sadrži više stabala unutar sebe i „pravi“ šumu, tj. 
+# povezuje stabla i kroz njih propušta podatke.
+
+# Ovaj model deluje kao dobra opcija za predviđanje cene uređaja jer su podaci kod nas takvi da 
+# je veoma lako pretpostaviti da li je uređaj skuplji ili jeftiniji samo na osnovu marke 
+# komponente ili operativnog sistema komponente. To se podudara radom stabla odlučivanja.
+
+
 # Treniranje modela
 
 rf_model <- ranger(
@@ -1413,6 +1479,11 @@ rf_model <- ranger(
   seed = 123
 )
 
+# Za treniranje modela korišćeni su prediktori iz najboljeg modela linearne regresije. 
+# Broj stabala je postavljena na 500, sample.fraction je postavljena na 0.75, to znači da 
+# će svako drvo videti samo nasumičnih 75% podataka iz trening skupa, zajedno sa tim seed 
+# je postavljen na 123. Takvom postavkom smo dosta smanjili mogućnost overfittovanja.
+
 # Predikcije na test skupu
 
 rf_pred <- expm1(predict(rf_model, test_data)$predictions)
@@ -1428,6 +1499,17 @@ rf_r2   <- 1 - sum((rf_pred - true_price)^2) /
 rf_rmse
 rf_mae
 rf_r2
+
+# Na osnovu grafika vidimo da je RMSE malo veći od RMSE kod linearne regresije (266) i takođe 
+# je MAE malo veći, nego što je to bio slučaj kod linearne regresije (200). Ovo nam ukazuje da 
+# naš model generalno pravi malo veću grešku u odnosu na linearnu regresiju, ali greška nije 
+# mnogo velika.
+
+# Poslednja metrika je R2 score, sa slike vidimo da model ima R2 score od 0.756, što je malo 
+# više nego što je bio slučaj kod najboljeg modela linearne regresije (0.755). Zaključak je da 
+# je ovaj model random forest-a zanemarljivo precizniji od najboljeg modela linearne regresije 
+# i pravi minimalno veću grešku pri predviđanju. Takođe, možemo zaključiti da je ovaj model 
+# veoma dobar i prepoznaje trendove u dovoljno preciznoj meri.
 
 # Feature importance
 
@@ -1450,12 +1532,27 @@ ggplot(imp, aes(x = reorder(feature, importance), y = importance)) +
   ) +
   theme_minimal(base_size = 14)
 
+# Poslednji deo kod ispitivanja modela je prikazivanje važnosti prediktora, tj. koliko su 
+# prediktori u stvari imali uticaja u predviđanju cene. Kod linearne regresije je to moguće 
+# videti komandom summary(), gde bi smo onda gledali one zvezdice, koje bi nam rekle koliko je 
+# taj feature imao uticaja. Ovde smo to prikazali grafički.
+
+# Sa grafika možemo videti da je cgt_score imao najveći uticaj i bio je proglašen za najboljeg 
+# prediktora, što je i za očekivati, sa obzirom na to da je cgt_score imao najveću korelaciju sa 
+# cenom. Važno je još navesti da operativni sistem i brand nisu imali tolikog uticaja, kao što 
+# smo u početku pretpostavili da će imati.
+
 ####
 ## XGBOOST
 ####
 
 install.packages("xgboost")
 library(xgboost)
+
+# Poslednji model koji ćemo ispitivati je XGBoost. XGBoost je veoma sličan Random Forest-u po 
+# principu rada, sa određenim promenama. Dok Random Forest koristi više stabala odlučivanja da 
+# naprave predikciju, XGBoost koristi među stabla koja se bave ispravljanjem greške prethodnog 
+# stabla odlučivanja. Time se uglavnom dobija bolja preciznost, ali je dosta zahtevnije.
 
 # priprema
 
@@ -1479,6 +1576,13 @@ xgb_model <- xgboost(
   verbose = 0
 )
 
+# Prvo što se primećuje je da postoji deo pripreme podataka, što do sada nije postojalo kod 
+# linearne regresije i Random Forest-a. U toj pripremi se izdvajaju samo numerički podaci. 
+# Razlog tome je što XGBoost zahteva da se sve kategorijske promenljive enkodiraju. Međutim, 
+# pošto nas obojica imamo samo laptopove sa samo 16GB RAM-a, a naš skup ima oko 70.000 podataka 
+# i 10-ak kategorijskih feature-a, nismo bili u mogućnosti da enkodiramo sve podatke i pokrenemo 
+# algoritam za trening XGBoost. Odlučili smo da koristimo samo numeričke podatke u predikciji cene.
+
 # predikcija
 
 xgb_pred_log <- predict(xgb_model, newdata = test_matrix)
@@ -1495,6 +1599,14 @@ xgb_r2   <- 1 - sum((xgb_pred - true_price)^2) /
 xgb_rmse
 xgb_mae
 xgb_r2
+
+# Vidimo da je RMSE i MAE veoma sličan RMSE i MAE Random Forest-a, gde je XGBoost pravio samo 
+# malo veću grešku u odnosu na Random Forest. R2 score, tj. preciznost našeg modela je 0.753, 
+# što je za nijansu niža u odnosu na linearne regresiju i Random Forest. To nije čudno, sa 
+# obzirom na to da XGBoost nije imao pristup kategorijskim promenljivama. Kada sagledamo sve 
+# metrike, zaključujemo da je model XGBoost pravio malo višu grešku i samim tim imao za nijansu 
+# neprecizniju predikciju, ali je model i dalje veoma dobar jer prepoznaje trendove i može biti 
+# pouzdan u većini slučajeva.
 
 # feature importance
 
@@ -1520,5 +1632,12 @@ ggplot(xgb_imp, aes(x = reorder(feature, importance), y = importance)) +
     y = "Importance"
   ) +
   theme_minimal(base_size = 14)
+
+# Kod XGBoost-a smo takođe prikazali važnost prediktora grafički. Sa grafika se vidi veoma 
+# čudna i neuobičajena situacija. Cgt_score je prikazan kao najbitniji feature, koji sam 
+# predstavlja 85% bitnosti, dok su svi ostali daleko manje bitni. Tu sad najbolje vidimo 
+# razliku između XGBoost-a i Random Forest-a. XGBoost je prepoznao da je cgt_score dovoljan 
+# prediktor i sve ostale je ostavio po strani, tj. koristio je ostale samo kada su mu bili 
+# neophodni, u onim specifičnim slučajevima.
 
 
