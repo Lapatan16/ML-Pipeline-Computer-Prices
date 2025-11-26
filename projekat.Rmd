@@ -1,0 +1,20 @@
+---
+title: "projekat"
+author: "Bojan i Mateja"
+date: "2025-11-05"
+output: html_document
+---
+
+Učitavanje potrebnih biblioteka
+
+```{r}
+  library(tidyverse)
+  library(ggplot2)
+  library(scales)
+  library(dplyr)
+  library(corrplot)
+  library(ggcorrplot)
+  library(stringr)
+```
+
+Brat moj
