@@ -23,7 +23,6 @@ Ucitavanje skupa podataka i prikaz osnovnih stvari
 
 ```{r}
 data = read.csv("computer_prices_all.csv")
-data
 names(data) 
 str(data)
 ```
@@ -560,9 +559,9 @@ ggplot(data, aes(x = cpu_tier, y = price, color = gpu_tier)) +
 
 ```{r}
 datav2 = data
-datav2
-# za svaki slučaj radimo sa rezervom originalnog skupa, ako nesto pogrešimo imamo original podatke netaknute
 ```
+
+Za svaki slučaj radimo sa rezervom originalnog skupa, ako nesto pogrešimo imamo original podatke netaknute
 
 1) provera NA vrednosti
 
@@ -1028,7 +1027,6 @@ Uklanjanje modela
 
 ```{r}
 datav3$model = NULL
-ggplot(data = datav2) + geom_point(mapping = aes(x = model, y = price))
 ```
 
 Prva kolona koja nam ne pomaže kod predikcije je model. Ta kolona sadrži nazive modela 
@@ -1038,7 +1036,7 @@ i kada bi se pojavio model koji nije bio u trening skupu, naš model bi napravio
 Bolji prediktor nam predstavlja brend, iako je nepreciznija predikcija samo preko brenda, 
 barem neće naš model da „preuči“, tj. da bude overfittovan na trening skupu.
 
-Uklanjanje gpu_model-a, form_factor-a, display_type, display_size_in, charger_watts, psu_watts, wifi, bluetooth, weight_kg, 
+Uklanjanje gpu_model-a, form_factor-a, display_type, display_size_in, charger_watts, psu_watts, wifi, bluetooth i weight_kg
 
 ```{r}
 datav3$gpu_model = NULL
@@ -1273,10 +1271,6 @@ uporedimo sa slikom raspodele cene od pre, možemo primetiti da sada ekstremno m
 veliki podaci imaju mnogo manji uticaj na njenu raspodelu. Takođe, možemo videti da grafik 
 više nije „povučen na desnu stranu“ tj. right skewed, već je vrednost koje ima najviše 
 postavljena u centru i sve ostale su oko nje raspoređene.
-
-```{r}
-datav4$log_price
-```
 
 Train/test modela
 
