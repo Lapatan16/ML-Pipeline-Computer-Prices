@@ -1169,7 +1169,9 @@ lasso_mae  = mean(abs(lasso_pred_real - test_data$price))
 lasso_r2   = 1 - sum((lasso_pred_real - test_data$price)^2) /
   sum((test_data$price - mean(test_data$price))^2)
 
-lasso_rmse; lasso_mae; lasso_r2
+lasso_rmse
+lasso_mae
+lasso_r2
 
 lasso_coef = coef(lasso_model, s = "lambda.min")
 
@@ -1189,7 +1191,7 @@ lasso_imp$importance = abs(lasso_imp$coefficient)
 lasso_imp = lasso_imp %>% arrange(desc(importance))
 
 ggplot(lasso_imp, aes(x = reorder(feature, importance), y = importance)) +
-  geom_col(fill = "darkred") +
+  geom_col(fill = "steelblue") +
   coord_flip() +
   labs(
     title = "LASSO Feature Importance",
