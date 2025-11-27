@@ -1159,6 +1159,8 @@ x_test = model.matrix(
   data = test_data
 )[, -1]
 
+# predikcija
+
 lasso_pred = predict(lasso_model, newx = x_test, s = "lambda.min")
 lasso_pred_real = expm1(lasso_pred)
 
