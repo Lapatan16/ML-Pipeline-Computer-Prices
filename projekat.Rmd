@@ -80,6 +80,67 @@ ggplot(data, aes(y = price)) +
 
 # VIZUELIZACIJA PODATAKA
 
+Distribucija tipova uređaja
+
+```{r}
+ggplot(data, aes(device_type)) +
+  geom_bar(fill = "skyblue", color = "black") +
+  labs(
+    title = "Distribucija tipova uređaja",
+    x = "Tip uređaja",
+    y = "Broj uređaja"
+  ) +
+  theme_minimal()
+```
+  
+Na grafiku iznad se vidi da u skupu ima više laptopova nego desktop računara, što je i očekivano jer su laptopovi danas mnogo zastupljeniji na tržištu. Ova razlika nije problematična, ali je važno da se zabeleži, već u početnoj analizi, jer nam govori kakav je sastav podataka pre daljeg čišćenja i obrade. U ovoj promenljivoj nema nelogičnosti ili vrednosti koje bi trebalo uklanjati odmah ukloniti.
+
+Distribucija CPU tier kategorija
+
+```{r}
+ggplot(data, aes(cpu_tier)) +
+  geom_bar(fill = "orange", color = "black") +
+  labs(
+    title = "Distribucija CPU tier kategorija",
+    x = "CPU tier",
+    y = "Broj uređaja"
+  ) +
+  theme_minimal()
+```
+
+Raspodela CPU tier vrednosti izgleda prilično prirodno: najviše uređaja pripada srednjim kategorijama (tier 2–4), dok su najjači i najslabiji procesori očekivano ređi. Ovo nam govori da dataset dobro pokriva različite nivoe procesorske snage i da u ovoj promenljivoj nema očiglednih grešaka ili nelogičnosti koje bi trebalo odmah uklanjati. 
+
+Distribucija GPU tier kategorija
+
+```{r}
+ggplot(data, aes(gpu_tier)) +
+  geom_bar(fill = "firebrick", color = "black") +
+  labs(
+    title = "Distribucija GPU tier kategorija",
+    x = "GPU tier",
+    y = "Broj uređaja"
+  ) +
+  theme_minimal()
+```
+  
+Na grafiku se vidi da i raspodela GPU tier vrednosti izgleda očekivano tj. najzastupljenije su srednje kategorije, dok najjače grafičke kartice imaju znatno manje primeraka. Ovo je tipičan raspored za tržište računara i ne ukazuje na bilo kakve greške u podacima i nema nikakvih vrednosti koje bi trebalo odmah ukloniti.
+
+Distribucija operativnih sistema
+
+```{r}
+ggplot(data, aes(os)) +
+  geom_bar(fill = "steelblue", color = "black") +
+  labs(
+    title = "Distribucija operativnih sistema",
+    x = "Operativni sistem",
+    y = "Broj uređaja"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+  
+Na grafiku se vidi da i raspodela GPU tier vrednosti izgleda očekivano tj. najzastupljenije su srednje kategorije, dok najjače grafičke kartice imaju znatno manje primeraka. Ovo je tipičan raspored za tržište računara i ne ukazuje na bilo kakve greške u podacima i nema nikakvih vrednosti koje bi trebalo odmah ukloniti.
+
 Grafik cene uređaja u odnosu na godinu izdavanja, godine se krecu od 2018 do 2025
 
 Na osnovu boxplot-ova možemo videti da su medijane uglavnom slične kroz godine ili 
@@ -631,7 +692,9 @@ nrow(datav2)
 
 Uređaji koje je proizveo Apple, nemaju mac os smo morali obrisati, a uređaje koji imaju mac os, a nisu Apple marke, smo mogli zameniti sa npr no operating system, ali ti podaci su svakako netačni u tip operativnog sistema je dobar prediktor, pa smo sve ove nelogičnosti obrisali
 
-Za prethodne 2 stvari smo koristili domensko znanje, koje nam je mnogo pomoglo da uočimo nepravilnosti i da ih potom ispitamo
+Za prethodne 2 stvari smo koristili domensko znanje, koje nam je mnogo pomoglo da uočimo nepravilnosti i da ih potom ispitamo.
+
+Iako na prvi pogled deluje zabrinjavajuće to što je uklonjeno ~26% podataka, ova odluka je po nama opravdana, jer su ti zapisi bili logički i tehnički nemogući. Radi se o uređajima koji imaju macOS instaliran na hardveru koji nije proizveo Apple, što je ne samo nerealan scenario, već je to i zakonski zabranjeno, pa takvi uređaji ne mogu da postoje. Drugi deo nelogičnih zapisa činili su uređaji koje je navodno Apple proizveo, ali koji nemaju macOS, što takođe nije moguće, jer Apple ne isporučuje svoje proizvode ni sa jednim drugim operativnim sistemom. Mogli smo takve uređaje svrstati u posebnu kategoriju poput “unknown” ili popuniti vrednosti nekim pretpostavkama, ali bi to značilo da u model unosimo veštačke informacije koje ne postoje u stvarnosti i koje bi potencijalno narušile tačnost analize i predikcija. Upravo zato odlučili smo da ove podatke u potpunosti uklonimo, jer se ne radi o gubitku validnih informacija, već o eliminaciji netačnih i nelogičnih redova čije bi prisustvo verovatno smanjilo kvalitet modela.
 
 ```{r}
 ggplot(data = datav2) + geom_point(mapping = aes(x = os, y = brand)) + theme_minimal() + labs(
@@ -822,8 +885,6 @@ datav2$cpu_tier = factor(
   levels = sort(unique(datav2$cpu_tier)),
   ordered = TRUE
 )
-# pretvaramo u ordered obeležje, kategorijsko je i jako je bitan redosled
-## ordered + TRUE znači da je ovo ordered factor promenljiva i levels = sort(unique(datav2$cpu_tier)) name kaže 
 datav2$gpu_tier = factor(
   datav2$gpu_tier,
   levels = sort(unique(datav2$gpu_tier)),
@@ -836,7 +897,9 @@ cpu_tier i gpu_tier pretvaramo u ordered obeležje, kategorijsko je i jako je bi
 
 Obeležja poput model, i  ne pretvaramo, jer nisu previše bitni za model i ima hiljade i hiljade različitih kategorija, nema nekih kategorija, a numerička obeležja ostaju onakva kakva i jesu
 
-Nakon iscrtavanja početnih grafika i njihove analize, čišćenja i sređivanja podataka i naravno uz pomoć domenskog znanja u EDA fazi izdvojićemo nekoliko grafika koje smatramo da su najbitniiji
+Nakon iscrtavanja početnih grafika i njihove analize, čišćenja i sređivanja podataka i naravno uz pomoć domenskog znanja u EDA fazi izdvojićemo nekoliko grafika koje smatramo da su najbitniiji. Takođe uradićemo i ANOVA test kako bismo i statistički potvrdili ono što se vidi na grafiku. Test će biti urađen za obeležja cpu_tier i gpu_tier, jer su kategorijska i imaju više od 3 kategorije, što je idealno za ovaj test (za obeležja sa dve kategorije bi npr. t-test bio bolji).
+
+ANOVA (Analysis of Variance) je statistička metoda koja se koristi da testira da li bar jedna grupa ima drugačiji prosek od ostalih. Ako je vrednost p < 0.05 to znači da postoje značajne razlike, u našem slučaju, u cenama između grupa.
 
 1) Grafik cene u odnosu na rang procesora
 
@@ -853,6 +916,15 @@ svaki rang takođe može imati i skuplje i jeftinije uređaje, u zavisnosti od d
 kod većih rangova veći je i raspon cena, skuplji uređaji mogu biti raznih vrsta gaming uređaji, premium brendovi i slično, negde je jak procesor i ostale komponente su slabije, negde je obrnuto, tako da i cene koje odskaču su sasvim realne
 cene koje odskaču kod nižih rangova su uglavnom gaming računari sa jakom grafičkom karticom ili sa mnogo memorije ili velikim RAM-om
 
+ANOVA test za cpu_tier obeležje
+
+```{r}
+anova_cpu = aov(price ~ cpu_tier, data = datav2)
+summary(anova_cpu)
+```
+
+Vrednost p je veoma mala, mnogo manja od praga značajnosti 0.05, što znači da se prosečne cene uređaja među grupama značajno razlikuju i to nije slučajno. Takođe F vrednost je veoma velika, što je ova vrednost veća, razlike između grupa su jače.
+
 2) Grafik cene u odnosu na rang grafičke kartice
 
 ```{r}
@@ -866,6 +938,15 @@ ggplot(datav2, aes(x = gpu_tier, y = price)) +
 Boxplot-ovi nam pokazuju da je ovaj prediktor još važniji za cenu, medijane takođe pravilno rastu sa povećanjem ranga procesora
 niži rangovi (1 i 2) uglavnom ne prelaze neki srednji cenovni rang, kao i za prethodno uređaji većih rangovima sa velikim cenama su neke profesionalne radne stanice ili neki jako dobri gaming uređaji
 takođe kod nižih rangova nema uređaja koji su mnogo skupi, jer je gpu uglavnom i najskuplja komponenta uređaja (naravno uz procesor)
+
+ANOVA test za gpu_tier obeležje
+
+```{r}
+anova_gpu = aov(price ~ gpu_tier, data = datav2)
+summary(anova_gpu)
+```
+
+Rezultati testa su slični kao i za prethodno obeležje, čak je F value malo veća, što nam i za ovo obeležje pokazuje da ima statistički značajan uticaj na cenu uređaja.
 
 3) Grafik cene u odnosu na vrste operativnog sistema
 
@@ -1625,7 +1706,7 @@ install.packages("xgboost", repos = "https://cloud.r-project.org")
 library(xgboost)
 ```
 
-Poslednji model koji ćemo ispitivati je XGBoost. XGBoost je veoma sličan Random Forest-u po 
+Sledeći model koji ćemo ispitivati je XGBoost. XGBoost je veoma sličan Random Forest-u po 
 principu rada, sa određenim promenama. Dok Random Forest koristi više stabala odlučivanja da 
 naprave predikciju, XGBoost koristi među stabla koja se bave ispravljanjem greške prethodnog 
 stabla odlučivanja. Time se uglavnom dobija bolja preciznost, ali je dosta zahtevnije.
@@ -1725,3 +1806,105 @@ predstavlja 85% bitnosti, dok su svi ostali daleko manje bitni. Tu sad najbolje 
 razliku između XGBoost-a i Random Forest-a. XGBoost je prepoznao da je cgt_score dovoljan 
 prediktor i sve ostale je ostavio po strani, tj. koristio je ostale samo kada su mu bili 
 neophodni, u onim specifičnim slučajevima.
+
+# LASSO REGRESIJA (L1 Regularizacija)
+
+Poslednji model koji ćemo ispitivati je Lasso. Lasso radi slično linearnoj regresiji, ali za razliku od linearne regresije, Lasso može sam da odabere najbolje prediktore, dodavanjem penala (kazni). Lasso dodaje L1 penal smanjuje koeficijent određenih feature i u nekim slučajevima može da ih postavi na 0, tj. da ih potpuno izbaci.
+
+Instalacija potrebne biblioteke
+
+```{r}
+library(glmnet)
+```
+
+# Treniranje
+
+```{r}
+x = model.matrix(
+  log_price ~ cpu_tier + gpu_tier + ram_gb +
+    cpu_power_score + cgt_score + storage_gb +
+    brand + os + device_type + cpu_generation + vram_gb + release_year,
+  data = train_data
+)[, -1]
+
+y = train_data$log_price
+
+lasso_model = cv.glmnet(
+  x, y,
+  alpha = 1,      
+  nfolds = 10,
+  type.measure = "mse"
+)
+
+lasso_model$lambda.min
+
+x_test = model.matrix(
+  log_price ~ cpu_tier + gpu_tier + ram_gb +
+    cpu_power_score + cgt_score + storage_gb +
+    brand + os + device_type + cpu_generation + vram_gb + release_year,
+  data = test_data
+)[, -1]
+```
+
+Na slici iznad se nalazi R kod za treniranje modela Lasso regresije. Korišćena je biblioteka „glmnet“. Pri pozivu glmnet funkcije, potrebno je postaviti alpha na 1, kako bi se radila Lasso regresija i takođe smo podesili da radi sa 10 foldova.
+
+# Predikcija
+
+```{r}
+lasso_pred = predict(lasso_model, newx = x_test, s = "lambda.min")
+lasso_pred_real = expm1(lasso_pred)
+
+lasso_rmse = sqrt(mean((lasso_pred_real - test_data$price)^2))
+lasso_mae  = mean(abs(lasso_pred_real - test_data$price))
+lasso_r2   = 1 - sum((lasso_pred_real - test_data$price)^2) /
+  sum((test_data$price - mean(test_data$price))^2)
+
+lasso_rmse
+lasso_mae
+lasso_r2
+```
+
+Sa slika iznad možemo videti da su RMSE i MAE dosta slične linearnoj regresiji. Vrednosti su toliko marginalne da nema smisla upoređivati ih na tim metrikama. R2 score je zato dosta bolji od svih modela koje smo testirali do sad. To nam govori o tome da je Lasso mnogo bolje prepoznalo koji prediktori su stvarno važni.
+
+```{r}
+lasso_coef = coef(lasso_model, s = "lambda.min")
+```
+
+Pretvaranje u data.frame
+
+```{r}
+lasso_imp = data.frame(
+  feature = rownames(lasso_coef),
+  coefficient = as.numeric(lasso_coef)
+)
+```
+
+Uklanjamo intercept (nije deo feature importance)
+
+```{r}
+lasso_imp = lasso_imp %>% filter(feature != "(Intercept)")
+```
+
+Apsolutna vrednost koeficijenata = značajnost
+
+```{r}
+lasso_imp$importance = abs(lasso_imp$coefficient)
+```
+
+Sortiranje opadajuće
+
+```{r}
+lasso_imp = lasso_imp %>% arrange(desc(importance))
+
+ggplot(lasso_imp, aes(x = reorder(feature, importance), y = importance)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(
+    title = "LASSO Feature Importance",
+    x = "Feature",
+    y = "Importance (koeficijent)"
+  ) +
+  theme_minimal(base_size = 14)
+```
+
+Sa grafika vidimo koji su feature-i bili najbitniji kod Lasso regresije. Ono što je interesantno kod ovog grafika je to što je cgt_score postavljen na 0, tj. nije uopšte bitan. Tu primećujemo pravu moć Lasso regresije, gde je prepoznala da je to samo mešavina gpu_tier-a i cpu_tier-a i odbacila ga. Takođe, vidimo da je dosta posmatralo brand da li je Apple, što ostali modeli nisu toliko razmatrali. Na osnovu ovog grafika možemo razumeti kako je Lasso imao bolju predikciju na testnom skupu od ostalih modela.

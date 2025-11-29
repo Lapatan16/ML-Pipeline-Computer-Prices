@@ -49,6 +49,51 @@ ggplot(data, aes(y = price)) +
 
 # VIZUELIZACIJA PODATAKA
 
+# Distribucija tipova uređaja
+
+ggplot(data, aes(device_type)) +
+  geom_bar(fill = "skyblue", color = "black") +
+  labs(
+    title = "Distribucija tipova uređaja",
+    x = "Tip uređaja",
+    y = "Broj uređaja"
+  ) +
+  theme_minimal()
+
+# Distribucija CPU tier kategorija
+
+ggplot(data, aes(cpu_tier)) +
+  geom_bar(fill = "orange", color = "black") +
+  labs(
+    title = "Distribucija CPU tier kategorija",
+    x = "CPU tier",
+    y = "Broj uređaja"
+  ) +
+  theme_minimal()
+
+# Distribucija GPU tier kategorija
+
+ggplot(data, aes(gpu_tier)) +
+  geom_bar(fill = "firebrick", color = "black") +
+  labs(
+    title = "Distribucija GPU tier kategorija",
+    x = "GPU tier",
+    y = "Broj uređaja"
+  ) +
+  theme_minimal()
+
+# Distribucija operativnih sistema
+
+ggplot(data, aes(os)) +
+  geom_bar(fill = "steelblue", color = "black") +
+  labs(
+    title = "Distribucija operativnih sistema",
+    x = "Operativni sistem",
+    y = "Broj uređaja"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
 # Grafik cene uređaja u odnosu na godinu izdavanja, godine se krecu od 2018 do 2025
 
 ggplot(data, aes(x = factor(release_year), y = price)) +
@@ -523,6 +568,11 @@ ggplot(datav2, aes(x = cpu_tier, y = price)) +
        x = "CPU Tier", y = "Cena (USD)") +
   theme_minimal()
 
+# ANOVA test za cpu_tier obeležje
+
+anova_cpu = aov(price ~ cpu_tier, data = datav2)
+summary(anova_cpu)
+
 # 2) Grafik cene u odnosu na rang grafičke kartice
 
 ggplot(datav2, aes(x = gpu_tier, y = price)) +
@@ -530,6 +580,11 @@ ggplot(datav2, aes(x = gpu_tier, y = price)) +
   labs(title = "Cena u odnosu na GPU Tier",
        x = "GPU Tier", y = "Cena (USD)") +
   theme_minimal()
+
+# ANOVA test za gpu_tier obeležje
+
+anova_gpu = aov(price ~ gpu_tier, data = datav2)
+summary(anova_gpu)
 
 # 3) Grafik cene u odnosu na vrste operativnog sistema
 
@@ -797,6 +852,17 @@ ggplot(datav4, aes(x = log_price)) +
 
 datav4$log_price
 
+library(car)
+
+num_vars <- train_data %>% 
+  select(cpu_tier, gpu_tier, ram_gb, cpu_power_score,
+         cgt_score, storage_gb, cpu_generation, vram_gb,
+         release_year, log_price)
+
+vif_model_num <- lm(log_price ~ ., data = num_vars)
+
+vif(vif_model_num)
+
 # Train/test podela
 
 set.seed(123)
@@ -1003,6 +1069,12 @@ m12_rmse; m12_mae
 summary(model_12)
 
 
+residuals_m12 = residuals(model_12)
+
+# Shapiro-Wilk test normalnosti reziduala
+shapiro_test = shapiro.test(residuals_m12)
+shapiro_test
+
 # RANDOM FOREST
 
 install.packages("ranger")
@@ -1134,6 +1206,8 @@ ggplot(xgb_imp, aes(x = reorder(feature, importance), y = importance)) +
 
 library(glmnet)
 
+# Treniranje
+
 x = model.matrix(
   log_price ~ cpu_tier + gpu_tier + ram_gb +
     cpu_power_score + cgt_score + storage_gb +
@@ -1159,7 +1233,7 @@ x_test = model.matrix(
   data = test_data
 )[, -1]
 
-# predikcija
+# Predikcija
 
 lasso_pred = predict(lasso_model, newx = x_test, s = "lambda.min")
 lasso_pred_real = expm1(lasso_pred)
@@ -1176,18 +1250,22 @@ lasso_r2
 lasso_coef = coef(lasso_model, s = "lambda.min")
 
 # Pretvaranje u data.frame
+
 lasso_imp = data.frame(
   feature = rownames(lasso_coef),
   coefficient = as.numeric(lasso_coef)
 )
 
 # Uklanjamo intercept (nije deo feature importance)
+
 lasso_imp = lasso_imp %>% filter(feature != "(Intercept)")
 
 # Apsolutna vrednost koeficijenata = značajnost
+
 lasso_imp$importance = abs(lasso_imp$coefficient)
 
 # Sortiranje opadajuće
+
 lasso_imp = lasso_imp %>% arrange(desc(importance))
 
 ggplot(lasso_imp, aes(x = reorder(feature, importance), y = importance)) +
