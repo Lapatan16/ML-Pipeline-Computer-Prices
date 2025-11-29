@@ -1249,22 +1249,14 @@ lasso_r2
 
 lasso_coef = coef(lasso_model, s = "lambda.min")
 
-# Pretvaranje u data.frame
-
 lasso_imp = data.frame(
   feature = rownames(lasso_coef),
   coefficient = as.numeric(lasso_coef)
 )
 
-# Uklanjamo intercept (nije deo feature importance)
-
 lasso_imp = lasso_imp %>% filter(feature != "(Intercept)")
 
-# Apsolutna vrednost koeficijenata = značajnost
-
 lasso_imp$importance = abs(lasso_imp$coefficient)
-
-# Sortiranje opadajuće
 
 lasso_imp = lasso_imp %>% arrange(desc(importance))
 
