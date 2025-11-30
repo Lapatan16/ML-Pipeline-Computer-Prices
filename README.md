@@ -167,21 +167,10 @@ Ovi testovi omogućavaju uvid u to **da li postoje statistički značajne razlik
 
 Tokom projekta testirano je više različitih modela sa ciljem da se uporede njihove performanse u predikciji cene uređaja.
 
----
-
-### Linearna regresija (Modeli 1–12)
-
----
-
-### Random Forest
-
----
-
-### XGBoost
-
----
-
-### Lasso regresija
+- Linearna regresija (12 modela)
+- Random Forest
+- XGBoost
+- Lasso regresija
 
 ---
 
