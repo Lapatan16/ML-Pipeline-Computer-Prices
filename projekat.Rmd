@@ -7,7 +7,7 @@ output: html_document
 
 # UVOD
 
-Učitavanje potrebnih biblioteka
+# Učitavanje potrebnih biblioteka
 
 ```{r}
   library(tidyverse)
@@ -19,7 +19,7 @@ Učitavanje potrebnih biblioteka
   library(stringr)
 ```
 
-Ucitavanje skupa podataka i prikaz osnovnih stvari
+# Ucitavanje skupa podataka i prikaz osnovnih stvari
 
 ```{r}
 data = read.csv("computer_prices_all.csv")
@@ -27,13 +27,13 @@ names(data)
 str(data)
 ```
 
-Analiza raspodele ciljne promenljive
+# Analiza raspodele ciljne promenljive
 
 ```{r}
 summary(data$price)
 ```
 
-Histogram ciljne promenljive price
+# Histogram ciljne promenljive price
 
 Histogram prikazuje raspodelu ciljne promenljive price i ovde takođe možemo videti 
 da raspodela nije simetrična, već pozitivno asimetrična. Kao što je malopre 
@@ -55,7 +55,7 @@ ggplot(data, aes(x = price)) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
-Boxplot ciljne promenljive price
+# Boxplot ciljne promenljive price
 
 Boxplot i potvrđuje ono što smo videli na histogramu i ovde vidimo tačke koje na 
 histogramu nisu bile prikazane, jer ih je jako malo sa visokom cenom i te tačke 
@@ -80,7 +80,7 @@ ggplot(data, aes(y = price)) +
 
 # VIZUELIZACIJA PODATAKA
 
-Distribucija tipova uređaja
+# Distribucija tipova uređaja
 
 ```{r}
 ggplot(data, aes(device_type)) +
@@ -90,12 +90,13 @@ ggplot(data, aes(device_type)) +
     x = "Tip uređaja",
     y = "Broj uređaja"
   ) +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
   
 Na grafiku iznad se vidi da u skupu ima više laptopova nego desktop računara, što je i očekivano jer su laptopovi danas mnogo zastupljeniji na tržištu. Ova razlika nije problematična, ali je važno da se zabeleži, već u početnoj analizi, jer nam govori kakav je sastav podataka pre daljeg čišćenja i obrade. U ovoj promenljivoj nema nelogičnosti ili vrednosti koje bi trebalo uklanjati odmah ukloniti.
 
-Distribucija CPU tier kategorija
+# Distribucija CPU tier kategorija
 
 ```{r}
 ggplot(data, aes(cpu_tier)) +
@@ -105,12 +106,13 @@ ggplot(data, aes(cpu_tier)) +
     x = "CPU tier",
     y = "Broj uređaja"
   ) +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
 Raspodela CPU tier vrednosti izgleda prilično prirodno: najviše uređaja pripada srednjim kategorijama (tier 2–4), dok su najjači i najslabiji procesori očekivano ređi. Ovo nam govori da dataset dobro pokriva različite nivoe procesorske snage i da u ovoj promenljivoj nema očiglednih grešaka ili nelogičnosti koje bi trebalo odmah uklanjati. 
 
-Distribucija GPU tier kategorija
+# Distribucija GPU tier kategorija
 
 ```{r}
 ggplot(data, aes(gpu_tier)) +
@@ -120,12 +122,13 @@ ggplot(data, aes(gpu_tier)) +
     x = "GPU tier",
     y = "Broj uređaja"
   ) +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
   
-Na grafiku se vidi da i raspodela GPU tier vrednosti izgleda očekivano tj. najzastupljenije su srednje kategorije, dok najjače grafičke kartice imaju znatno manje primeraka. Ovo je tipičan raspored za tržište računara i ne ukazuje na bilo kakve greške u podacima i nema nikakvih vrednosti koje bi trebalo odmah ukloniti.
+Na grafiku se vidi da i raspodela GPU tier vrednosti izgleda očekivano tj. najzastupljenije su srednje kategorije, dok najjače grafičke kartice imaju znatno manje primeraka. Ovo je tipičan raspored za tržište uređaja i ne ukazuje na bilo kakve greške u podacima i nema nikakvih vrednosti koje bi trebalo odmah ukloniti.
 
-Distribucija operativnih sistema
+#Distribucija operativnih sistema
 
 ```{r}
 ggplot(data, aes(os)) +
@@ -136,12 +139,13 @@ ggplot(data, aes(os)) +
     y = "Broj uređaja"
   ) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
   
 Na grafiku se vidi da i raspodela GPU tier vrednosti izgleda očekivano tj. najzastupljenije su srednje kategorije, dok najjače grafičke kartice imaju znatno manje primeraka. Ovo je tipičan raspored za tržište računara i ne ukazuje na bilo kakve greške u podacima i nema nikakvih vrednosti koje bi trebalo odmah ukloniti.
 
-Grafik cene uređaja u odnosu na godinu izdavanja, godine se krecu od 2018 do 2025
+# Grafik cene uređaja u odnosu na godinu izdavanja, godine se krecu od 2018 do 2025
 
 Na osnovu boxplot-ova možemo videti da su medijane uglavnom slične kroz godine ili 
 se minimalno povećavaju. Iako bi se trebalo pretpostaviti da će noviji uređaji biti 
@@ -167,7 +171,7 @@ ggplot(data, aes(x = factor(release_year), y = price)) +
 
 ```
 
-Grafik cene u odnosu na tip uređaja
+# Grafik cene u odnosu na tip uređaja
 
 Na osnovu boxplot dijagrama možemo videti da postoji razlika u ceni između 
 desktop računara i laptopova, ali nije velika. Medijana cene laptopova je nešto 
@@ -191,11 +195,10 @@ ggplot(data, aes(x = device_type, y = price, fill = device_type)) +
   )
 ```
 
-Grafik cene uređaja u odnosu na RAM memoriju
+# Grafik cene uređaja u odnosu na RAM memoriju
 
 Sa grafika možemo videti da tačke formiraju vertikalne linije što znači da imamo 
-samo određene vrednosti koje mogu biti vrednosti RAM memorije i posle ćemo moći 
-ovu numeričku promenljivu da prebacimo u kategorijsku. Postoje uređaji koji imaju 
+samo određene vrednosti koje mogu biti vrednosti RAM memorije. Postoje uređaji koji imaju 
 nešto manje od 100GB RAM-a, a dosta su skuplji nego uređaji sa preko 100GB RAM-a, 
 može biti da su ostale komponente dosta skuplje npr. procesor, grafička kartica, 
 eksterna memorija, itd…
@@ -214,15 +217,10 @@ ggplot(data, aes(x = ram_gb, y = price)) +
   )
 ```
 
-Grafik cene uređaja u odnosu na broj jezgara procesora
+# Grafik cene uređaja u odnosu na broj jezgara procesora
 
 Sa grafika se može videti da sa porastom broja jezgara blago raste i cena uređaja što 
-je i logično jer broj jezgara je indikator procesorske moći, ali tako je negde do 12 
-ili 16 jezgara i nakon toga se cena uglavnom smanjuje sa povećanjem broja jezgara što 
-je potrebno ispitati. Možda neke druge komponente imaju uticaj kod uređaja sa manje 
-od 20 jezgara. Takođe postoji nekoliko primera sa manje od 10 jezgara, a cenom preko 
-8000$ i verovatno je isti razlog kao za ove prethodne, a takođe je moguće da je došlo 
-do nekih grešaka pri unosu, što je potrebno dodatno ispitati.
+je i logično jer broj jezgara je indikator procesorske moći. Takođe postoji nekoliko primera sa manje od 10 jezgara, a cenom preko 8000$ i verovatno je isti razlog kao za ove prethodne, a takođe je moguće da je došlo do nekih grešaka pri unosu, što je potrebno dodatno ispitati.
 
 ```{r}
 ggplot(data, aes(x = cpu_cores, y = price)) +
@@ -234,12 +232,12 @@ ggplot(data, aes(x = cpu_cores, y = price)) +
   ) +
   theme_minimal() +
   theme(
-    plot.title = element_text(size = 16, face = "bold"),
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
     axis.title = element_text(size = 12)
   )
 ```
 
-Grafik cene uređaja u odnosu na rang procesora
+# Grafik cene uređaja u odnosu na rang procesora
 
 Sa grafika možemo videti boxplot-ove koji prikazuju cene uređaja u odnosu na klasu 
 procesora koju imaju. 1 je najlošija, 6 je najbolja klasa. Medijana se porastom klase 
@@ -261,7 +259,7 @@ ggplot(data, aes(x = as.factor(cpu_tier), y = price)) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
-Grafik cene uređaja u odnosu na rang grafičke kartice
+# Grafik cene uređaja u odnosu na rang grafičke kartice
 
 Sa grafika možemo videti kakve su cene uređaja u odnosu na grafičku karticu i 
 takođe kao i kod procesora postoji 6 kategorija i još pravilnije sa porastom klase 
@@ -281,13 +279,13 @@ ggplot(data, aes(x = as.factor(gpu_tier), y = price)) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
-Grafik cene uređaja u odnosu na vram memoriju
+# Grafik cene uređaja u odnosu na vram memoriju
 
 VRAM memorija jeste u stvari zasebna memorija grafičke kartice, koja se koristi 
 za generisanje slika, koje se prikazuju na ekranu. Više ovakvog ram-a znači i 
 veću cenu, ali nije sasvim pravilno, postoje uređaji sa malo VRAM-a sa izuzetno 
 visokim cenama. Što se tiče potencijalnih outlier-a postoje uređaji sa 0GB VRAM-a, 
-moguće da nemaju uopšte VRAM i da budu poprilično skupi.  Svaki deo ima outlier-e 
+moguće da nemaju uopšte VRAM i da budu poprilično skupi. Svaki deo ima outlier-e 
 ali su svi u granicama normale.
 
 ```{r}
@@ -302,7 +300,7 @@ ggplot(data, aes(x = vram_gb, y = price)) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
-Grafik cene uređaja u odnosu na količinu memorije
+# Grafik cene uređaja u odnosu na količinu memorije
 
 Standardne vrednosti količine memorije jesu upravo 512GB i 1TB što grafik, 
 sa slike i potvrđuje, većina uređaja se nalazi u ovom opsegu. Svakako je velika 
@@ -320,7 +318,7 @@ ggplot(data, aes(x = storage_gb, y = price)) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
-Grafik cene uređaja u odnosu na tip memorije
+# Grafik cene uređaja u odnosu na tip memorije
 
 Boxplot-ovi prikazuju zavisnost cene od tipa memorije, HDD je najstarija i najsporija, 
 SSD novija od nje i brža, Hybrid je njihova kombinacija, a NVMe je najbrža i najbolja 
@@ -340,11 +338,10 @@ ggplot(data, aes(x = storage_type, y = price)) +
     y = "Cena uređaja (USD)"
   ) +
   theme_minimal(base_size = 14) +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
-  scale_y_continuous(limits = c(0, 11000))
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
-Grafik cene uređaja u odnosu na veličinu ekrana
+# Grafik cene uređaja u odnosu na veličinu ekrana
 
 Grafik prikazuje zavisnost cene u odnosu na veličinu ekrana izraženu u inčima. 
 U skupu podataka je više laptopova, jer je većina uređaja između 15 i 17 inča, što 
@@ -365,7 +362,7 @@ ggplot(data, aes(x = display_size_in, y = price)) +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
 
-Grafik cene uređaja u odnosu na rezoluciju ekrana
+# Grafik cene uređaja u odnosu na rezoluciju ekrana
 
 Sa grafika vidimo da medijana blago raste sve do rezolucije 2880x1800, nakon toga 
 opada i na samom kraju ponovo raste. Kod svake rezolucije postoje jako skupi modeli 
@@ -388,7 +385,7 @@ ggplot(data, aes(x = resolution, y = price)) +
   )
 ```
 
-Grafik cene u odnosu na frekvenciju osvežavanja tj refresh rate
+# Grafik cene u odnosu na frekvenciju osvežavanja tj refresh rate
 
 Sa grafika se vidi da najveći broj uređaja ima 60Hz frekvenciju osvežavanja ekrana 
 i cena je uglavnom u srednjem i nižem rangu. Sa povećanjem frekvencije ne raste cena,
@@ -409,7 +406,7 @@ ggplot(data, aes(x = refresh_hz, y = price)) +
   )
 ```
 
-Grafik cene u odnosu na kapacitet baterije uređaja
+# Grafik cene u odnosu na kapacitet baterije uređaja
 
 Sa grafika vidimo uređaje sa 0Wh baterije i to su desktop računari svi ostali uređaji
 su laptopovi. Sa većim kapacitetom baterije bi cene trebale da rastu , ali to baš i 
@@ -433,7 +430,7 @@ ggplot(data, aes(x = battery_wh, y = price)) +
   )
 ```
 
-Grafik cene uređaja u odnosu na njegovu težinu
+# Grafik cene uređaja u odnosu na njegovu težinu
 
 Sa grafika vidimo da je većina uređaja težine od 1 do 3.5kg i ima ih sa raznim cenama. 
 Uređaji manji od kilogram mogu potencijalno biti outlieri i potrebno ih je dodatno 
@@ -455,7 +452,7 @@ ggplot(data, aes(x = weight_kg, y = price)) +
   )
 ```
 
-Grafik cene uređaja u odnosu na brzinu procesora
+# Grafik cene uređaja u odnosu na brzinu procesora
 
 Sa grafika vidimo da veza cene i brzine procesora i nije bas linearna, postepeno 
 raste do određenog dela, ali ima i dosta uređaja sa velikom brzinom procesora ,a 
@@ -477,7 +474,7 @@ ggplot(data, aes(x = cpu_base_ghz, y = price)) +
   )
 ```
 
-Grafik cene uređaja u odnosu na proizvođača procesora
+# Grafik cene uređaja u odnosu na proizvođača procesora
 
 Možemo videti cene uređaja u odnosu na proizvođača procesora. Apple prednjači u 
 odnosu na AMD i Intel što je i očekivano, jer oni obično i dolaze sa skupljim 
@@ -500,7 +497,7 @@ ggplot(data, aes(x = cpu_brand, y = price)) +
   )
 ```
 
-Grafik cene u odnosu na operativni sistem uređaja
+# Grafik cene u odnosu na operativni sistem uređaja
 
 Medijana ChromeOS je najniža što je i očekivano jer je relativno mlad operativni 
 sistem, sa ne toliko širokom upotrebom, a uređaji sa macOS su očekivano najskuplji 
@@ -525,7 +522,7 @@ ggplot(data, aes(x = os, y = price)) +
   )
 ```
 
-Grafik cene u odnosu na proizvođača uređaja
+# Grafik cene u odnosu na proizvođača uređaja
 
 Medijane su uglavnom slične, Razer ima malo veću od ostalih, a Apple dosta ali 
 i očekivano, Apple uređaji su uvek najskuplji. Kod HP, Lenovo i MSI brenda postoje 
@@ -549,9 +546,9 @@ ggplot(data, aes(x = brand, y = price)) +
   )
 ```
 
-Kombinacije podataka radi boljeg prepoznavanja trendova
+# Kombinacije podataka radi boljeg prepoznavanja trendova
 
-Uticaj tipa eksterne memorije na količinu memorije i cenu uređaja
+# Uticaj tipa eksterne memorije na količinu memorije i cenu uređaja
 
 ```{r}
 ggplot(data, aes(x = storage_gb, y = price, color = storage_type)) +
@@ -561,10 +558,14 @@ ggplot(data, aes(x = storage_gb, y = price, color = storage_type)) +
     title = "Uticaj tipa eksterne memorije na količinu memorije i cenu uređaja",
     x = "Količina memorije",
     y = "Cena u dolarima"
+  )+
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    panel.grid.minor = element_blank()
   )
 ```
 
-Uticaj marke procesora na cenu po rangu
+# Uticaj marke procesora na cenu po rangu
 
 ```{r}
 ggplot(data, aes(x = cpu_tier, y = price, color = cpu_brand)) +
@@ -574,10 +575,14 @@ ggplot(data, aes(x = cpu_tier, y = price, color = cpu_brand)) +
     title = "Uticaj marke procesora na cenu po rangu",
     x = "Rang procesora (tier)",
     y = "Cena u dolarima"
+  )+
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    panel.grid.minor = element_blank()
   )
 ```
 
-Uticaj marke računara i garancije u mesecima na cenu
+# Uticaj marke računara i garancije u mesecima na cenu
 
 ```{r}
 ggplot(data, aes(x = warranty_months, y = price, color = brand)) +
@@ -587,10 +592,14 @@ ggplot(data, aes(x = warranty_months, y = price, color = brand)) +
     title = "Uticaj marke računara i garancije u mesecima na cenu",
     x = "Garancija u mesecima",
     y = "Cena u dolarima"
+  )+
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    panel.grid.minor = element_blank()
   )
 ```
 
-Uticaj marke i ranga grafičke kartice na cenu
+# Uticaj marke i ranga grafičke kartice na cenu
 
 ```{r}
 ggplot(data, aes(x = gpu_tier, y = price, color = gpu_brand)) +
@@ -600,10 +609,14 @@ ggplot(data, aes(x = gpu_tier, y = price, color = gpu_brand)) +
     title = "Uticaj marke i ranga grafičke kartice na cenu",
     x = "Rang grafičke kartice (tier)",
     y = "Cena u dolarima"
+  )+
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    panel.grid.minor = element_blank()
   )
 ```
 
-Uticaj ranga procesora i ranga grafičke kartice na cenu
+# Uticaj ranga procesora i ranga grafičke kartice na cenu
 
 ```{r}
 ggplot(data, aes(x = cpu_tier, y = price, color = gpu_tier)) +
@@ -613,6 +626,10 @@ ggplot(data, aes(x = cpu_tier, y = price, color = gpu_tier)) +
     title = "Uticaj ranga procesora i ranga grafičke kartice na cenu",
     x = "Rang procesora (tier)",
     y = "Cena u dolarima"
+  )+
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    panel.grid.minor = element_blank()
   )
 ```
 
@@ -624,7 +641,7 @@ datav2 = data
 
 Za svaki slučaj radimo sa rezervom originalnog skupa, ako nesto pogrešimo imamo original podatke netaknute
 
-1) provera NA vrednosti
+# 1) provera NA vrednosti
 
 ```{r}
 colSums(is.na(datav2))
@@ -632,11 +649,11 @@ colSums(is.na(datav2))
 
 Vidimo da u datasetu ne postoje NA tj. vrednosti koje fale već su svi podaci za svih 100k redova popunjeni
 
-2) pogrešno unete vrednosti
+# 2) pogrešno unete vrednosti
 
 Analizom skupa podataka vizuelno i analizom grafika iz prethodnog koraka nisu oučene neke pogrešne vrednosti npr. tip uređaja da negde bude Device negde device ili uređaj od 100kg, negativna vrednost cene, memorije ili nečeg sličnog
 
-3) nelogične vrednosti
+# 3) nelogične vrednosti
 
 ```{r}
 nrow(filter(datav2, os == "macOS" & price < 1000))
@@ -663,6 +680,9 @@ ggplot(data = datav2) + geom_point(mapping = aes(x = os, y = brand)) + theme_min
   title = "Operativni sistemi na različitim proizvođačima",
   x = "Operativni sistem",
   y = "Marka proizvođača"
+) +
+theme(
+  plot.title = element_text(hjust = 0.5, face = "bold")
 )
 
 apple_intel_procesor = datav2 %>% filter(brand == "Apple" & cpu_brand == "Intel")
@@ -690,8 +710,6 @@ datav2 = datav2 %>% filter(!(brand == "Apple" & os != "macOS"))
 nrow(datav2)
 ```
 
-Uređaji koje je proizveo Apple, nemaju mac os smo morali obrisati, a uređaje koji imaju mac os, a nisu Apple marke, smo mogli zameniti sa npr no operating system, ali ti podaci su svakako netačni u tip operativnog sistema je dobar prediktor, pa smo sve ove nelogičnosti obrisali
-
 Za prethodne 2 stvari smo koristili domensko znanje, koje nam je mnogo pomoglo da uočimo nepravilnosti i da ih potom ispitamo.
 
 Iako na prvi pogled deluje zabrinjavajuće to što je uklonjeno ~26% podataka, ova odluka je po nama opravdana, jer su ti zapisi bili logički i tehnički nemogući. Radi se o uređajima koji imaju macOS instaliran na hardveru koji nije proizveo Apple, što je ne samo nerealan scenario, već je to i zakonski zabranjeno, pa takvi uređaji ne mogu da postoje. Drugi deo nelogičnih zapisa činili su uređaji koje je navodno Apple proizveo, ali koji nemaju macOS, što takođe nije moguće, jer Apple ne isporučuje svoje proizvode ni sa jednim drugim operativnim sistemom. Mogli smo takve uređaje svrstati u posebnu kategoriju poput “unknown” ili popuniti vrednosti nekim pretpostavkama, ali bi to značilo da u model unosimo veštačke informacije koje ne postoje u stvarnosti i koje bi potencijalno narušile tačnost analize i predikcija. Upravo zato odlučili smo da ove podatke u potpunosti uklonimo, jer se ne radi o gubitku validnih informacija, već o eliminaciji netačnih i nelogičnih redova čije bi prisustvo verovatno smanjilo kvalitet modela.
@@ -715,7 +733,7 @@ nrow(laptop_no_battery)
 
 Provera da li postoji računar sa baterijom, nema ih ili možda laptop bez baterije, takođe ih nema
 
-4) analiza i potencijalno izbacivanje outlier-a
+# 4) analiza i potencijalno izbacivanje outlier-a
 
 ```{r}
 preskupi_2021 = datav2 %>% filter(release_year == 2021 & price > 9000)
@@ -772,7 +790,7 @@ jeftini_ogromna_rezolucija = datav2 %>% filter(resolution %in% c("3440x1440", "3
 nrow(jeftini_ogromna_rezolucija)
 ```
 
-Sa grafika zavisnosti cene od rezolucije ekrana (slika broj 29) postoje uređaji sa maksimalnom rezolucijom i cenom ispod 500$, što je nemoguće kakve god da su druge komponente, pa ćemo ih obrisati
+Sa grafika zavisnosti cene od rezolucije ekrana postoje uređaji sa maksimalnom rezolucijom i cenom ispod 500$, što je nemoguće kakve god da su druge komponente, pa ćemo ih obrisati
 
 ```{r}
 datav2 = datav2 %>% filter(!(resolution %in% c("3440x1440", "3840x2160") & price < 500))
@@ -901,7 +919,7 @@ Nakon iscrtavanja početnih grafika i njihove analize, čišćenja i sređivanja
 
 ANOVA (Analysis of Variance) je statistička metoda koja se koristi da testira da li bar jedna grupa ima drugačiji prosek od ostalih. Ako je vrednost p < 0.05 to znači da postoje značajne razlike, u našem slučaju, u cenama između grupa.
 
-1) Grafik cene u odnosu na rang procesora
+# 1) Grafik cene u odnosu na rang procesora
 
 ```{r}
 ggplot(datav2, aes(x = cpu_tier, y = price)) +
@@ -916,7 +934,7 @@ svaki rang takođe može imati i skuplje i jeftinije uređaje, u zavisnosti od d
 kod većih rangova veći je i raspon cena, skuplji uređaji mogu biti raznih vrsta gaming uređaji, premium brendovi i slično, negde je jak procesor i ostale komponente su slabije, negde je obrnuto, tako da i cene koje odskaču su sasvim realne
 cene koje odskaču kod nižih rangova su uglavnom gaming računari sa jakom grafičkom karticom ili sa mnogo memorije ili velikim RAM-om
 
-ANOVA test za cpu_tier obeležje
+# ANOVA test za cpu_tier obeležje
 
 ```{r}
 anova_cpu = aov(price ~ cpu_tier, data = datav2)
@@ -925,7 +943,7 @@ summary(anova_cpu)
 
 Vrednost p je veoma mala, mnogo manja od praga značajnosti 0.05, što znači da se prosečne cene uređaja među grupama značajno razlikuju i to nije slučajno. Takođe F vrednost je veoma velika, što je ova vrednost veća, razlike između grupa su jače.
 
-2) Grafik cene u odnosu na rang grafičke kartice
+# 2) Grafik cene u odnosu na rang grafičke kartice
 
 ```{r}
 ggplot(datav2, aes(x = gpu_tier, y = price)) +
@@ -939,7 +957,7 @@ Boxplot-ovi nam pokazuju da je ovaj prediktor još važniji za cenu, medijane ta
 niži rangovi (1 i 2) uglavnom ne prelaze neki srednji cenovni rang, kao i za prethodno uređaji većih rangovima sa velikim cenama su neke profesionalne radne stanice ili neki jako dobri gaming uređaji
 takođe kod nižih rangova nema uređaja koji su mnogo skupi, jer je gpu uglavnom i najskuplja komponenta uređaja (naravno uz procesor)
 
-ANOVA test za gpu_tier obeležje
+# ANOVA test za gpu_tier obeležje
 
 ```{r}
 anova_gpu = aov(price ~ gpu_tier, data = datav2)
@@ -948,7 +966,7 @@ summary(anova_gpu)
 
 Rezultati testa su slični kao i za prethodno obeležje, čak je F value malo veća, što nam i za ovo obeležje pokazuje da ima statistički značajan uticaj na cenu uređaja.
 
-3) Grafik cene u odnosu na vrste operativnog sistema
+# 3) Grafik cene u odnosu na vrste operativnog sistema
 
 ```{r}
 ggplot(datav2, aes(x = os, y = price)) +
@@ -964,7 +982,7 @@ uređaji sa chrome operativnim sistemo imaju najmanju medijanu i najmanji broj o
 uređaji sa linux os-om su uglavnom stabilni i nižih cena, većih od chrome os-a, ali ne sa nešto prezahtevnim hardverom
 ovaj prediktor i nije toliko jako povezan sa cenom kao prethodni, ali je dobar pokazatelj kakva je cena u odnosu na neku kategoriju
 
-4) Grafik cene u odnosu na veličinu ram memorije
+# 4) Grafik cene u odnosu na veličinu ram memorije
 
 ```{r}
 ggplot(datav2, aes(x = ram_gb, y = price)) +
@@ -980,7 +998,7 @@ da donja granica raste sa porastom RAM-a. Možemo takođe primetiti da smo ostav
 određeni broj outliera iz razloga što RAM nije najbitniji prediktor i te ekstremnije 
 vrednosti nam znače za predviđanje cene kroz druge prediktore.
 
-5) Grafik cene u odnosu na broj jezgara procesora
+# 5) Grafik cene u odnosu na broj jezgara procesora
 
 ```{r}
 ggplot(datav2, aes(x = cpu_cores, y = price)) +
@@ -998,7 +1016,7 @@ komponenti. Sa grafika se može primetiti da sve vrednosti idu za po 2 (4, 6, 8,
 do 20 i onda imamo skok na 24. Razlog tome nije što ne postoje procesori sa 22 
 jezgra, nego u ovom konkretnom dataset-u nije zabeležen ni jedan procesor sa 22 jezgra.
 
-6) Grafik cene u odnosu na base GHZ
+# 6) Grafik cene u odnosu na base GHZ
 
 ```{r}
 ggplot(datav2, aes(x = cpu_base_ghz, y = price)) +
@@ -1016,7 +1034,7 @@ outlieri jer su nam potrebni u drugim komponentama. Ono što je zanimljivo kod b
 procesora je to što donja granica do 3.0 GHZ gotovo da i ne raste, što nam govori da 
 brzina procesora ne mora biti preterano dobar prediktor.
 
-7) Grafik cene u odnosu na proizvođača uređaja
+# 7) Grafik cene u odnosu na proizvođača uređaja
 
 ```{r}
 ggplot(datav2, aes(x = brand, y = price)) +
@@ -1039,7 +1057,7 @@ Apple dosta pored komponenti naplaćuje i brand, pa je i logično da bude ovako,
 Razer uređaji su uglavnom gejmerski pa je i logično što imaju veću cenu, ostale marke nude uređaji raznih cena od najjeftinijih do najskupljih, što je najviše povezavano sa komponentama, a ne samim brendom
 Acer je jedini koji ima manju medijanu, jer on najčešće nudi uređaje niske i srednje klase
 
-8) Grafik cene u odnosu na vrstu uređaja
+# 8) Grafik cene u odnosu na vrstu uređaja
 
 ```{r}
 ggplot(datav2, aes(x = device_type, y = price)) +
@@ -1053,7 +1071,7 @@ Boxplot-ovi iznad pokazuju da su laptopovi skuplji od računara, što smo i rani
 medijana im je veća i imaju više cena koje odskaču nego računari, ali je to sasvim normalno, laptopovi imaju integrisane komponente, drugačiji sistem hlađenja, prenosivi su i slično
 jednak nivo performansi kod laptopova i računara uvek će laptopovi biti skuplji, kod oba tipa cene koje odskaču su uglavnom gaming uređaji i profesionalni modeli i u sasvim su realnom opsegu
 
-9) Uticaj tipa eksterne memorije na količinu memorije i cenu uređaja
+# 9) Uticaj tipa eksterne memorije na količinu memorije i cenu uređaja
 
 ```{r}
 ggplot(datav2, aes(x = storage_gb, y = price, color = storage_type)) +
@@ -1076,7 +1094,7 @@ eksterne memorije, raste i početna cena, osim kod HDD-a. HDD drži konstantnu d
 granicu, što nam može govoriti o tome da HDD nije popularna opcija i da često kupci 
 biraju brže eksterne memorije.
 
-10) Uticaj ranga procesora i ranga grafičke kartice na cenu
+# 10) Uticaj ranga procesora i ranga grafičke kartice na cenu
 
 ```{r}
 ggplot(datav2, aes(x = cpu_tier, y = price, color = gpu_tier)) +
@@ -1104,7 +1122,7 @@ datav3 = datav2
 str(datav3)
 ```
 
-Uklanjanje modela
+# Uklanjanje modela
 
 ```{r}
 datav3$model = NULL
@@ -1117,7 +1135,7 @@ i kada bi se pojavio model koji nije bio u trening skupu, naš model bi napravio
 Bolji prediktor nam predstavlja brend, iako je nepreciznija predikcija samo preko brenda, 
 barem neće naš model da „preuči“, tj. da bude overfittovan na trening skupu.
 
-Uklanjanje gpu_model-a, form_factor-a, display_type, display_size_in, charger_watts, psu_watts, wifi, bluetooth i weight_kg
+# Uklanjanje gpu_model-a, form_factor-a, display_type, display_size_in, charger_watts, psu_watts, wifi, bluetooth i weight_kg
 
 ```{r}
 datav3$gpu_model = NULL
@@ -1131,7 +1149,7 @@ datav3$bluetooth = NULL
 datav3$weight_kg = NULL
 ```
 
-Provera za garanciju
+# Provera za garanciju
 
 ```{r}
 ggplot(data = datav3) + geom_point(mapping = aes(x = warranty_months, y = price))
@@ -1147,7 +1165,7 @@ str(datav3)
 
 # FEATURE ENGINEERING
 
-1)
+# 1)
 
 Kao prvi feature koji bismo mogli dodati jeste upravo cpu_power_score koji predstavlja kolika je zapravo sirova snaga naseg procesora to ćemo dobiti kombinacijom broja jezgara procesora i osnovne frekvencije procesora i nakon dodavanja crtamo grafik
 
@@ -1185,7 +1203,7 @@ cor(datav3$cpu_power_score, datav3$price)
 
 Korelacija je jaka i dobra, malo manja od cpu_tier pre pretvaranja u factor, ovaj prediktor je svakako dobar i nećemo ovo pretvarati u kategorije pošto vec imamo cpu tier koji je ordinal factor promenljiva cpu power score nije zamena za cpu tier, već je komplementaran numerički pokazatelj procesorske snage, za svaku od 6 kategorija iz cpu tier postoje uređaji i sa većom i sa manjom vrednošću novog prediktora, tako da se ne dupliraju podaci
 
-2)
+# 2)
 
 Kao drugi feature u okviru fe-a bismo mogli dodati kombinaciju verovatno dva najbitnija obeležja na osnovu dosadašnjih analiza i na osnovu domenskog znanja, a to su cpu tier i gpu tier procesor je osnovna stvar u uređaju sa kojom je sve povezano, a grafička kartica je najbitnija za performanse uređaja, pošto imamo raspoređene uređaje po rangu za oba ova pojedinačno zanima nas kakav će ishod biti kada se spoje
 
@@ -1227,7 +1245,7 @@ cor(datav3$cgt_score, datav3$price)
 
 Korelacija je izuzetno visoka, najveća je od svih prediktora do sad, najbolji je pojedinačni prediktor, tako da itekako ga zadržavamo
 
-3)
+# 3)
 
 Kada smo uklanjali višak kolone većinom smo sve kolone tipa „model“ uklonili jer postoji 
 mnogo modela i nemoguće je izvući znanje iz njih. Međutim, ostavili smo jednu kolone te vrste, 
@@ -1245,8 +1263,7 @@ Kako su tri različita proizvođača, nije baš moguće direktno uporediti gener
 moguće to uraditi približno. U suštini, Intell i AMD koriste sličnu oznaku za generaciju i
 moguće ih je lako uporediti. Intell i5 je po performansama sličan AMD Ryzen 5, Intell i3 je
 sličan AMD Ryzen 3, i tako dalje. Budući da Apple drugačije označava generacije svojih 
-procesora, moraćemo malo kreativnije upoređenje da napravimo. Pretpostavićemo da M1 = i3 = 3, 
-M2 = i5 = 5, M3 = i7 = 7 i procesori sa oznakama Pro ili Max su jednake i9 i 9.
+procesora, moraćemo malo kreativnije poređenje da napravimo. Pretpostavićemo da M1 = i3 = 3, M2 = i5 = 5, M3 = i7 = 7 i procesori sa oznakama Pro ili Max su jednake i9 i 9.
 
 Podela procesora po generacijama
 
@@ -1332,7 +1349,7 @@ datav4 = datav3
 
 Pravimo datav4 što će biti i naš finalni skup podataka
 
-Logaritamska transformacija
+# Logaritamska transformacija
 
 ```{r}
 datav4$log_price = log1p(datav4$price)
@@ -1353,7 +1370,7 @@ veliki podaci imaju mnogo manji uticaj na njenu raspodelu. Takođe, možemo vide
 više nije „povučen na desnu stranu“ tj. right skewed, već je vrednost koje ima najviše 
 postavljena u centru i sve ostale su oko nje raspoređene.
 
-Train/test modela
+# Train/test modela
 
 ```{r}
 set.seed(123)
@@ -1395,7 +1412,7 @@ U ovoj promenljivoj čuvamo stvarno cenu uređaja iz testnog skupa
 
 # LINEARNA REGRESIJA
 
-MODEL 1
+# MODEL 1
 
 ```{r}
 model_1 = lm(log_price ~ cpu_tier, data=train_data)
@@ -1410,7 +1427,7 @@ m1_rmse; m1_mae
 summary(model_1)
 ```
 
-MODEL 2
+# MODEL 2
 
 ```{r}
 model_2 = lm(log_price ~ cpu_tier + gpu_tier, data=train_data)
@@ -1425,7 +1442,7 @@ m2_rmse; m2_mae
 summary(model_2)
 ```
 
-MODEL 3
+# MODEL 3
 
 ```{r}
 model_3 = lm(log_price ~ cpu_tier + gpu_tier + ram_gb, data=train_data)
@@ -1440,7 +1457,7 @@ m3_rmse; m3_mae
 summary(model_3)
 ```
 
-MODEL 4
+# MODEL 4
 
 ```{r}
 model_4 = lm(log_price ~ cpu_tier + gpu_tier + ram_gb +
@@ -1456,7 +1473,7 @@ m4_rmse; m4_mae
 summary(model_4)
 ```
 
-MODEL 5
+# MODEL 5
 
 ```{r}
 model_5 = lm(log_price ~ cpu_tier + gpu_tier + ram_gb +
@@ -1472,7 +1489,7 @@ m5_rmse; m5_mae
 summary(model_5)
 ```
 
-MODEL 6
+# MODEL 6
 
 ```{r}
 model_6 = lm(log_price ~ cpu_tier + gpu_tier + ram_gb +
@@ -1489,7 +1506,7 @@ m6_rmse; m6_mae
 summary(model_6)
 ```
 
-MODEL 7
+# MODEL 7
 
 ```{r}
 model_7 = lm(log_price ~ cpu_tier + gpu_tier + ram_gb +
@@ -1506,7 +1523,7 @@ m7_rmse; m7_mae
 summary(model_7)
 ```
 
-MODEL 8
+# MODEL 8
 
 ```{r}
 model_8 = lm(log_price ~ cpu_tier + gpu_tier + ram_gb +
@@ -1524,7 +1541,7 @@ m8_rmse; m8_mae
 summary(model_8)
 ```
 
-MODEL 9
+# MODEL 9
 
 ```{r}
 model_9 = lm(log_price ~ cpu_tier + gpu_tier + ram_gb +
@@ -1542,7 +1559,7 @@ m9_rmse; m9_mae
 summary(model_9)
 ```
 
-MODEL 10
+# MODEL 10
 
 ```{r}
 model_10 = lm(log_price ~ cpu_tier + gpu_tier + ram_gb +
@@ -1560,7 +1577,7 @@ m10_rmse; m10_mae
 summary(model_10)
 ```
 
-MODEL 11
+# MODEL 11
 
 ```{r}
 model_11 = lm(log_price ~ cpu_tier + gpu_tier + ram_gb +
@@ -1578,7 +1595,7 @@ m11_rmse; m11_mae
 summary(model_11)
 ```
 
-MODEL 12
+# MODEL 12
 
 ```{r}
 model_12 = lm(log_price ~ cpu_tier + gpu_tier + ram_gb +

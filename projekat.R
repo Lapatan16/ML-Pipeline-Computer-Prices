@@ -58,7 +58,8 @@ ggplot(data, aes(device_type)) +
     x = "Tip uređaja",
     y = "Broj uređaja"
   ) +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 
 # Distribucija CPU tier kategorija
 
@@ -69,7 +70,8 @@ ggplot(data, aes(cpu_tier)) +
     x = "CPU tier",
     y = "Broj uređaja"
   ) +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 
 # Distribucija GPU tier kategorija
 
@@ -80,7 +82,8 @@ ggplot(data, aes(gpu_tier)) +
     x = "GPU tier",
     y = "Broj uređaja"
   ) +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 
 # Distribucija operativnih sistema
 
@@ -92,7 +95,8 @@ ggplot(data, aes(os)) +
     y = "Broj uređaja"
   ) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.title = element_text(hjust = 0.5, face = "bold"))
 
 # Grafik cene uređaja u odnosu na godinu izdavanja, godine se krecu od 2018 do 2025
 
@@ -150,7 +154,7 @@ ggplot(data, aes(x = cpu_cores, y = price)) +
   ) +
   theme_minimal() +
   theme(
-    plot.title = element_text(size = 16, face = "bold"),
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
     axis.title = element_text(size = 12)
   )
 
@@ -212,8 +216,7 @@ ggplot(data, aes(x = storage_type, y = price)) +
     y = "Cena uređaja (USD)"
   ) +
   theme_minimal(base_size = 14) +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
-  scale_y_continuous(limits = c(0, 11000))
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 
 # Grafik cene uređaja u odnosu na veličinu ekrana
 
@@ -359,6 +362,10 @@ ggplot(data, aes(x = storage_gb, y = price, color = storage_type)) +
     title = "Uticaj tipa eksterne memorije na količinu memorije i cenu uređaja",
     x = "Količina memorije",
     y = "Cena u dolarima"
+  )+
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    panel.grid.minor = element_blank()
   )
 
 # Uticaj marke procesora na cenu po rangu
@@ -370,6 +377,10 @@ ggplot(data, aes(x = cpu_tier, y = price, color = cpu_brand)) +
     title = "Uticaj marke procesora na cenu po rangu",
     x = "Rang procesora (tier)",
     y = "Cena u dolarima"
+  )+
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    panel.grid.minor = element_blank()
   )
 
 # Uticaj marke računara i garancije u mesecima na cenu
@@ -381,6 +392,10 @@ ggplot(data, aes(x = warranty_months, y = price, color = brand)) +
     title = "Uticaj marke računara i garancije u mesecima na cenu",
     x = "Garancija u mesecima",
     y = "Cena u dolarima"
+  )+
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    panel.grid.minor = element_blank()
   )
 
 # Uticaj marke i ranga grafičke kartice na cenu
@@ -392,6 +407,10 @@ ggplot(data, aes(x = gpu_tier, y = price, color = gpu_brand)) +
     title = "Uticaj marke i ranga grafičke kartice na cenu",
     x = "Rang grafičke kartice (tier)",
     y = "Cena u dolarima"
+  )+
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    panel.grid.minor = element_blank()
   )
 
 # Uticaj ranga procesora i ranga grafičke kartice na cenu
@@ -403,6 +422,10 @@ ggplot(data, aes(x = cpu_tier, y = price, color = gpu_tier)) +
     title = "Uticaj ranga procesora i ranga grafičke kartice na cenu",
     x = "Rang procesora (tier)",
     y = "Cena u dolarima"
+  )+
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    panel.grid.minor = element_blank()
   )
 
 # ČIŠĆENJE I OBRADA PODATAKA
@@ -433,6 +456,9 @@ ggplot(data = datav2) + geom_point(mapping = aes(x = os, y = brand)) + theme_min
   title = "Operativni sistemi na različitim proizvođačima",
   x = "Operativni sistem",
   y = "Marka proizvođača"
+) +
+theme(
+  plot.title = element_text(hjust = 0.5, face = "bold")
 )
 
 apple_intel_procesor = datav2 %>% filter(brand == "Apple" & cpu_brand == "Intel")
@@ -750,7 +776,7 @@ ggplot(datav3, aes(x = cpu_power_score, y = price)) +
 
 cor(datav3$cpu_power_score, datav3$price)
 
-# 2) Drugi novi feature: cgt_score je ica je najbitnija za performanse uređaja, pošto imamo raspoređene uređaje po rangu za oba ova pojedinačno zanima nas kakav će ishod biti kada se spoje
+# 2) Drugi novi feature: cgt_score je kombinacija dva najbitnija feature-a za performanse uređaja, pošto imamo raspoređene uređaje po rangu za oba ova pojedinačno zanima nas kakav će ishod biti kada se spoje
 
 datav3$cgt_score = as.numeric(datav3$cpu_tier) * as.numeric(datav3$gpu_tier)
 
@@ -852,17 +878,6 @@ ggplot(datav4, aes(x = log_price)) +
 
 datav4$log_price
 
-library(car)
-
-num_vars <- train_data %>% 
-  select(cpu_tier, gpu_tier, ram_gb, cpu_power_score,
-         cgt_score, storage_gb, cpu_generation, vram_gb,
-         release_year, log_price)
-
-vif_model_num <- lm(log_price ~ ., data = num_vars)
-
-vif(vif_model_num)
-
 # Train/test podela
 
 set.seed(123)
@@ -872,7 +887,6 @@ n = nrow(datav4)
 train_index = sample(seq_len(n), size = 0.8 * n)
 train_data = datav4[train_index, ]
 test_data = datav4[-train_index, ]
-
 
 nrow(train_data)
 # train podaci su 59376 redova
@@ -1067,13 +1081,6 @@ m12_mae  = mean(abs(pred_12 - true_price))
 m12_rmse; m12_mae
 
 summary(model_12)
-
-
-residuals_m12 = residuals(model_12)
-
-# Shapiro-Wilk test normalnosti reziduala
-shapiro_test = shapiro.test(residuals_m12)
-shapiro_test
 
 # RANDOM FOREST
 
