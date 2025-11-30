@@ -1,4 +1,4 @@
-# All Computer Prices – Analiza i Predikcija Cena Računara i Laptopova
+# All Computer Prices – Analiza i predikcija cena računara i laptopova
 
 ## Opis projekta
 
@@ -23,8 +23,8 @@ Korišćen je **skup podataka sa Kaggle-a** koji sadrži **100.000 uređaja**, s
 3. Čišćenje i obrada podataka
 4. Istraživačka analiza (EDA)    
 5. Feature engineering  
-6. Treniranje i testiranje modela  
-7. Evaluacija i poređenje modela  
+6. Treniranje modela  
+7. Poređenje modela  
 8. Zaključak  
 
 ---
@@ -36,7 +36,7 @@ Korišćen je **skup podataka sa Kaggle-a** koji sadrži **100.000 uređaja**, s
 - **Broj kolona**: 33  
 - **Ciljna promenljiva**: `price` (USD)  
 
-Ovaj skup podataka sadrži tehničke specifikacije računara i laptopova, uključujući informacije o procesoru, grafičkoj kartici, memoriji, disku, ekranu, operativnom sistemu i dodatnim karakteristikama uređaja.
+Ovaj skup podataka sadrži tehničke specifikacije računara i laptopova, uključujući informacije o procesoru, grafičkoj kartici, memoriji, ekranu, operativnom sistemu i dodatnim karakteristikama uređaja.
 
 ### Primeri atributa:
 
@@ -111,10 +111,10 @@ Korišćena funkcija `ggcorrplot` za prikaz korelacija između numeričkih prome
 Najjače korelacije sa `price` imaju:
 
 - `ram_gb`
-- `vram_gb`
+- `cpu_cores`
+- `cpu_threads`
 - `cpu_base_ghz`
-- `gpu_tier`
-- `cpu_tier`
+- `cpu_boost_ghz`
 
 Atributi poput `battery_wh`, `charger_watts`, `psu_watts`, `weight_kg` imaju slabiju korelaciju sa cenom.
 
@@ -124,7 +124,7 @@ Ova analiza je poslužila kao osnova za dalji inženjering osobina i odabir odgo
 
 ## Feature Engineering
 
-Na osnovu uvida iz EDA faze, izrađene su dodatna obeležja koje bolje opisuju sposobnosti uređaja i omogućavaju modelima da budu bolji.
+Na osnovu uvida iz EDA faze, izrađene su dodatna obeležja koje bolje opisuju sposobnosti uređaja i omogućavaju modelima da budu precizniji.
 
 ### Kreirane osobine:
 
@@ -134,7 +134,7 @@ Na osnovu uvida iz EDA faze, izrađene su dodatna obeležja koje bolje opisuju s
   Predstavlja aproksimaciju ukupne snage CPU-a.
 
 - **`cgt_score`**  
-  Kombinovana metrika snage CPU, GPU i RAM:  
+  Kombinovana metrika snage CPU i GPU:  
   `cpu_tier + gpu_tier`  
   Osmišljena da objedini ključne performanse sistema.
 
@@ -145,7 +145,7 @@ Na osnovu uvida iz EDA faze, izrađene su dodatna obeležja koje bolje opisuju s
 
 ## ANOVA testovi
 
-Kako bi se dodatno procenio značaj kategorijalnih prediktora u objašnjenju ciljne promenljive `price`, korišćeni su **ANOVA testovi (Analysis of Variance)**.
+Kako bi se dodatno procenio značaj nekih kategorijskih prediktora u objašnjenju ciljne promenljive `price`, korišćeni su **ANOVA testovi (Analysis of Variance)**.
 
 Ovi testovi omogućavaju uvid u to **da li postoje statistički značajne razlike u srednjim vrednostima cene** između grupa unutar pojedinih atributa.
 
@@ -180,7 +180,7 @@ Tokom projekta testirano je više različitih modela sa ciljem da se uporede nji
 
 ---
 
-## Zaključci
+## Zaključak
 
 - Rad pokazuje da se cena računara može uspešno predvideti kombinovanjem tehničkih parametara i nekoliko dodatnih indikatora kao što su brend i godina izdavanja. 
 - Modeli su se pokazali dovoljno preciznim da se koriste za procenu cene uređaja. 
@@ -195,5 +195,3 @@ Tokom projekta testirano je više različitih modela sa ciljem da se uporede nji
 - **Fakultet**: Prirodno-matematički fakultet – Informatika  
 - **Predmet**: Uvod u nauku o podacima  
 - **Mentor**: Prof. Branko Arsić
-
-
